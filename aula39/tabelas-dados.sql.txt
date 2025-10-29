@@ -1,0 +1,48 @@
+-- Inserções na tabela Usuario
+INSERT INTO Usuario (usuario_nome, usuario_email, usuario_senha, usuario_data_cadastro) VALUES
+('Ana Pereira', 'ana.pereira@email.com', 'senha123', '2024-06-15'),
+('Carlos Souza', 'carlos.souza@email.com', 'senha456', '2024-07-20'),
+('Beatriz Lima', 'beatriz.lima@email.com', 'senha789', '2024-08-01'),
+('Fernando Costa', 'fernando.costa@email.com', 'senhaabc', '2024-09-05'),
+('Juliana Mendes', 'juliana.mendes@email.com', 'senhadef', '2024-09-12');
+ 
+-- Inserções na tabela Conta
+INSERT INTO Conta (conta_tipo, conta_saldo_atual, id_usuario) VALUES
+('corrente', 2500.00, 1),
+('poupanca', 4000.00, 2),
+('investimento', 6000.00, 3),
+('corrente', 1800.00, 4),
+('poupanca', 3200.00, 5);
+ 
+-- Inserções na tabela Cartao
+INSERT INTO Cartao (cartao_numero, cartao_validade, cartao_limite_credito, cartao_bandeira, id_usuario) VALUES
+('1111222233334444', '2026-12-31', 3000.00, 'Visa', 1),
+('5555666677778888', '2027-06-30', 2500.00, 'Mastercard', 2),
+('9999000011112222', '2028-03-31', 2000.00, 'Elo', 3);
+ 
+-- Inserções na tabela Categoria
+INSERT INTO Categoria (categoria_nome, categoria_pai) VALUES
+('Renda', NULL),
+('Salário', 1),
+('Despesas', NULL),
+('Alimentação', 3),
+('Transporte', 3);
+ 
+-- Inserções na tabela Orcamento
+INSERT INTO Orcamento (orcamento_valor_total_planejado, orcamento_periodo_inicio, orcamento_periodo_fim, id_usuario) VALUES
+(1200.00, '2025-09-01', '2025-09-30', 1),
+(900.00, '2025-09-01', '2025-09-30', 2),
+(1500.00, '2025-09-01', '2025-09-30', 4);
+ 
+-- Inserções na tabela Fatura
+INSERT INTO Fatura (fatura_data_inicio, fatura_data_fim, fatura_valor_total, fatura_status, fatura_data_pagamento, id_cartao, id_conta_pagadora) VALUES
+('2025-08-01', '2025-08-31', 600.00, 'fechada', '2025-09-05', 1, 1),
+('2025-07-01', '2025-07-31', 400.00, 'paga', '2025-08-10', 2, 2);
+ 
+-- Inserções na tabela Transacao
+INSERT INTO Transacao (transacao_valor, transacao_data, transacao_tipo, transacao_descricao, id_conta, id_fatura, id_categoria) VALUES
+(1000.00, '2025-09-12', 'receita', 'Salário Mensal', 1, NULL, 2), -- Receita com conta
+(300.00, '2025-09-12', 'despesa', 'Compra no mercado', 1, NULL, 4), -- Despesa com conta
+(250.00, '2025-08-15', 'despesa', 'Jantar fora', NULL, 1, 4), -- Despesa com fatura
+(500.00, '2025-09-10', 'despesa', 'Passagem de ônibus', 3, NULL, 5) -- Despesa com conta
+
