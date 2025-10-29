@@ -1,0 +1,267 @@
+-- Criando as tabelas
+CREATE TABLE funcionario (
+    idFuncionario INT AUTO_INCREMENT PRIMARY KEY,
+    idFunUso VARCHAR(20) NOT NULL UNIQUE,
+    nome VARCHAR(40)
+);
+ 
+CREATE TABLE fornecedor (
+    idFornecedor INT AUTO_INCREMENT PRIMARY KEY,
+    idForUso VARCHAR(20) NOT NULL UNIQUE,
+    nome VARCHAR(40)
+);
+ 
+CREATE TABLE cliente (
+    idCliente INT AUTO_INCREMENT PRIMARY KEY,
+    idCliUso VARCHAR(20) NOT NULL UNIQUE,
+    nome VARCHAR(40)
+);
+ 
+CREATE TABLE documento (
+    idDoc INT AUTO_INCREMENT PRIMARY KEY,
+    tipo VARCHAR(20),
+    nDoc VARCHAR(20),
+    idFK_fun_for_cli VARCHAR(20),  -- Chave estrangeira genérica
+    tipo_relacionamento ENUM('funcionario', 'fornecedor', 'cliente') NOT NULL,  -- Define se é funcionário, fornecedor ou cliente
+    CONSTRAINT fk_funcionario FOREIGN KEY (idFK_fun_for_cli) REFERENCES funcionario(idFunUso) ON DELETE CASCADE,
+    CONSTRAINT fk_fornecedor FOREIGN KEY (idFK_fun_for_cli) REFERENCES fornecedor(idForUso) ON DELETE CASCADE,
+    CONSTRAINT fk_cliente FOREIGN KEY (idFK_fun_for_cli) REFERENCES cliente(idCliUso) ON DELETE CASCADE
+);
+
+
+DELIMITER $$
+
+-- Procedure para inserir cliente
+CREATE PROCEDURE inserir_cliente(IN nome VARCHAR(40))
+BEGIN
+    DECLARE idCliente INT;
+    DECLARE novoIdCliUso VARCHAR(20);
+    DECLARE idCliExistente INT;
+
+    -- Pegar o maior idCliente da tabela e incrementar em 1
+    SELECT IFNULL(MAX(idCliente), 0) + 1 INTO idCliente FROM cliente;
+
+    -- Gerar o idCliUso baseado no idCliente (adicionando '-cli' ao final)
+    SET novoIdCliUso = CONCAT(idCliente, '-cli');
+
+    -- Verificar se o idCliUso já existe para evitar duplicidade
+    SELECT COUNT(*) INTO idCliExistente FROM cliente WHERE idCliUso = novoIdCliUso;
+
+    -- Verificar se idCliUso já existe, se existir, gerar um novo
+    WHILE idCliExistente > 0 DO
+        SET idCliente = idCliente + 1;  -- Incrementa o idCliente
+        SET novoIdCliUso = CONCAT(idCliente, '-cli');  -- Atualiza o idCliUso
+        SELECT COUNT(*) INTO idCliExistente FROM cliente WHERE idCliUso = novoIdCliUso;  -- Verifica novamente
+    END WHILE;
+
+    -- Inserir o novo cliente
+    INSERT INTO cliente (idCliUso, nome)
+    VALUES (novoIdCliUso, nome);
+
+    -- Mostrar uma mensagem de sucesso após a inserção
+    SELECT 'Cliente inserido com sucesso!', novoIdCliUso AS idCliUso;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- Procedimento para inserir funcionario
+CREATE PROCEDURE inserir_funcionario(IN nome VARCHAR(40))
+BEGIN
+    DECLARE idFuncionario INT;
+    DECLARE novoIdFunUso VARCHAR(20);
+    DECLARE idFunExistente INT;
+
+    -- Pegar o maior idFuncionario da tabela e incrementar em 1
+    SELECT IFNULL(MAX(idFuncionario), 0) + 1 INTO idFuncionario FROM funcionario;
+
+    -- Gerar o idFunUso baseado no idFuncionario (adicionando '-fun' ao final)
+    SET novoIdFunUso = CONCAT(idFuncionario, '-fun');
+
+    -- Verificar se o idFunUso já existe para evitar duplicidade
+    SELECT COUNT(*) INTO idFunExistente FROM funcionario WHERE idFunUso = novoIdFunUso;
+
+    -- Verificar se idFunUso já existe, se existir, gerar um novo
+    WHILE idFunExistente > 0 DO
+        SET idFuncionario = idFuncionario + 1;  -- Incrementa o idFuncionario
+        SET novoIdFunUso = CONCAT(idFuncionario, '-fun');  -- Atualiza o idFunUso
+        SELECT COUNT(*) INTO idFunExistente FROM funcionario WHERE idFunUso = novoIdFunUso;  -- Verifica novamente
+    END WHILE;
+
+    -- Inserir o novo funcionário
+    INSERT INTO funcionario (idFunUso, nome)
+    VALUES (novoIdFunUso, nome);
+
+    -- Mostrar uma mensagem de sucesso após a inserção
+    SELECT 'Funcionario inserido com sucesso!', novoIdFunUso AS idFunUso;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+-- Procedimento para inserir fornecedor
+CREATE PROCEDURE inserir_fornecedor(IN nome VARCHAR(40))
+BEGIN
+    DECLARE idFornecedor INT;
+    DECLARE novoIdForUso VARCHAR(20);
+    DECLARE idForExistente INT;
+
+    -- Pegar o maior idFornecedor da tabela e incrementar em 1
+    SELECT IFNULL(MAX(idFornecedor), 0) + 1 INTO idFornecedor FROM fornecedor;
+
+    -- Gerar o idForUso baseado no idFornecedor (adicionando '-for' ao final)
+    SET novoIdForUso = CONCAT(idFornecedor, '-for');
+
+    -- Verificar se o idForUso já existe para evitar duplicidade
+    SELECT COUNT(*) INTO idForExistente FROM fornecedor WHERE idForUso = novoIdForUso;
+
+    -- Verificar se idForUso já existe, se existir, gerar um novo
+    WHILE idForExistente > 0 DO
+        SET idFornecedor = idFornecedor + 1;  -- Incrementa o idFornecedor
+        SET novoIdForUso = CONCAT(idFornecedor, '-for');  -- Atualiza o idForUso
+        SELECT COUNT(*) INTO idForExistente FROM fornecedor WHERE idForUso = novoIdForUso;  -- Verifica novamente
+    END WHILE;
+
+    -- Inserir o novo fornecedor
+    INSERT INTO fornecedor (idForUso, nome)
+    VALUES (novoIdForUso, nome);
+
+    -- Mostrar uma mensagem de sucesso após a inserção
+    SELECT 'Fornecedor inserido com sucesso!', novoIdForUso AS idForUso;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE inserir_documento(
+    IN tipo VARCHAR(20), 
+    IN nDoc VARCHAR(20), 
+    IN idFK_fun_for_cli VARCHAR(20), 
+    IN tipo_relacionamento ENUM('funcionario', 'fornecedor', 'cliente')
+)
+BEGIN
+    DECLARE v_existente INT;
+
+    -- Desabilitar temporariamente a verificação de chaves estrangeiras
+    SET foreign_key_checks = 0;
+
+    -- Verifica se a chave estrangeira é válida conforme o tipo_relacionamento
+    IF tipo_relacionamento = 'funcionario' THEN
+        -- Verifica se o idFK_fun_for_cli existe na tabela funcionario
+        SELECT COUNT(*) INTO v_existente FROM funcionario WHERE idFunUso = idFK_fun_for_cli;
+    ELSEIF tipo_relacionamento = 'fornecedor' THEN
+        -- Verifica se o idFK_fun_for_cli existe na tabela fornecedor
+        SELECT COUNT(*) INTO v_existente FROM fornecedor WHERE idForUso = idFK_fun_for_cli;
+    ELSEIF tipo_relacionamento = 'cliente' THEN
+        -- Verifica se o idFK_fun_for_cli existe na tabela cliente
+        SELECT COUNT(*) INTO v_existente FROM cliente WHERE idCliUso = idFK_fun_for_cli;
+    END IF;
+
+    -- Se a chave estrangeira for válida, insere o documento
+    IF v_existente > 0 THEN
+        INSERT INTO documento (tipo, nDoc, idFK_fun_for_cli, tipo_relacionamento)
+        VALUES (tipo, nDoc, idFK_fun_for_cli, tipo_relacionamento);
+    ELSE
+        -- Caso a chave estrangeira não seja válida, retorna um erro
+        SELECT CONCAT('Erro: A chave estrangeira "', idFK_fun_for_cli, '" não existe na tabela correspondente.');
+    END IF;
+
+    -- Reabilitar a verificação de chaves estrangeiras
+    SET foreign_key_checks = 1;
+
+END $$
+
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+-- Desabilitar a verificação de chaves estrangeiras
+SET foreign_key_checks = 0;
+
+-- Limpar as tabelas, excluindo os registros
+
+DELETE FROM funcionario;
+DELETE FROM cliente;
+DELETE FROM fornecedor;
+DELETE FROM documento;
+
+
+
+-- Resetar o contador de AUTO_INCREMENT para 1
+ALTER TABLE funcionario AUTO_INCREMENT = 1;
+ALTER TABLE fornecedor AUTO_INCREMENT = 1;
+ALTER TABLE cliente AUTO_INCREMENT = 1;
+ALTER TABLE documento AUTO_INCREMENT = 1;
+
+-- Habilitar novamente a verificação de chaves estrangeiras
+SET foreign_key_checks = 1;
+
+
+
+-- Cadastra dois clientes
+  
+CALL inserir_cliente('Cliente 1');
+CALL inserir_cliente('Cliente 2');
+
+-- Cadastra um fornecedor
+
+CALL inserir_fornecedor('Fornecedor 1');
+
+-- Cadastra um funcionario
+
+CALL inserir_funcionario('Funcionario 1');
+
+CALL inserir_documento('cpf', '999.888.777-89', '1-fun', 'funcionario');
+CALL inserir_documento('cnpj', '99.888.333/0001-89', '1-for', 'fornecedor');
+CALL inserir_documento('rg', '99.888.777-8', '1-cli', 'cliente');
+
+
+
+
+SELECT idCliUso FROM cliente WHERE idCliUso LIKE '%-cli';
+SELECT * FROM cliente WHERE nome LIKE '%i%'; 
+
+-----------------------
+
