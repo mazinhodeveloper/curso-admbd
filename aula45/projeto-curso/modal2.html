@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multiple Image Modals</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .image-link {
+      color: blue;
+      text-decoration: underline;
+      cursor: pointer;
+      display: block;
+      margin: 10px 0;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .modal-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Links to open modals -->
+  <span class="image-link" data-modal="modal1">Open Image 1</span>
+  <span class="image-link" data-modal="modal2">Open Image 2</span>
+  <span class="image-link" data-modal="modal3">Open Image 3</span>
+
+  <!-- Modal 1 -->
+  <div id="modal1" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      https://via.placeholder.com/400x300?text=Image+1
+    </div>
+  </div>
+
+  <!-- Modal 2 -->
+  <div id="modal2" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      https://via.placeholder.com/400x300?text=Image+2
+    </div>
+  </div>
+
+  <!-- Modal 3 -->
+  <div id="modal3" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      https://via.placeholder.com/400x300?text=Image+3
+    </div>
+  </div>
+
+  <script>
+    const links = document.querySelectorAll('.image-link');
+    const modals = document.querySelectorAll('.modal');
+    const closeButtons = document.querySelectorAll('.close');
+
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        const modalId = link.getAttribute('data-modal');
+        document.getElementById(modalId).style.display = 'block';
+      });
+    });
+
+    closeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.closest('.modal').style.display = 'none';
+      });
+    });
+
+    window.addEventListener('click', event => {
+      modals.forEach(modal => {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

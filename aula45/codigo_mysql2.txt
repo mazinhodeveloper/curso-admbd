@@ -1,0 +1,212 @@
+-- =======================================
+-- BANCO DE DADOS: Sistema de Controle Financeiro Pessoal
+-- =======================================
+DROP DATABASE IF EXISTS financeiro;
+CREATE DATABASE financeiro;
+USE financeiro;
+
+-- =======================================
+-- Tabelas
+-- =======================================
+
+CREATE TABLE usuario (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_nome VARCHAR(100) NOT NULL,
+    usuario_email VARCHAR(100) NOT NULL UNIQUE,
+    usuario_senha VARCHAR(255) NOT NULL,
+    usuario_data_cadastro DATE NOT NULL
+);
+
+CREATE TABLE categoria (
+    id_categoria INT AUTO_INCREMENT PRIMARY KEY,
+    categoria_nome VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE conta (
+    id_conta INT AUTO_INCREMENT PRIMARY KEY,
+    conta_numero VARCHAR(20) NOT NULL,
+    conta_tipo ENUM('corrente','poupanca','salario') NOT NULL,
+    conta_saldo_atual DECIMAL(12,2) NOT NULL DEFAULT 0,
+    conta_banco VARCHAR(100) NOT NULL,
+    fk_id_usuario INT NOT NULL,
+    FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario)
+);
+
+CREATE TABLE cartao (
+    id_cartao INT AUTO_INCREMENT PRIMARY KEY,
+    cartao_numero VARCHAR(20) NOT NULL UNIQUE,
+    cartao_validade DATE NOT NULL,
+    cartao_limite_credito DECIMAL(12,2) NOT NULL,
+    fk_id_usuario INT NOT NULL,
+    FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario)
+);
+
+CREATE TABLE status_fatura (
+    id_status_fatura INT AUTO_INCREMENT PRIMARY KEY,
+    status_fatura_nome ENUM('aberta','fechada','atrasada') NOT NULL
+);
+
+CREATE TABLE fatura (
+    id_fatura INT AUTO_INCREMENT PRIMARY KEY,
+    fatura_data_inicio DATE NOT NULL,
+    fatura_data_fim DATE NOT NULL,
+    fatura_valor_total DECIMAL(12,2) NOT NULL DEFAULT 0,
+    fk_id_cartao INT NOT NULL,
+    fk_id_status INT NOT NULL,
+    FOREIGN KEY (fk_id_cartao) REFERENCES cartao(id_cartao),
+    FOREIGN KEY (fk_id_status) REFERENCES status_fatura(id_status_fatura)
+);
+
+CREATE TABLE operacao (
+    id_operacao INT AUTO_INCREMENT PRIMARY KEY,
+    operacao_nome ENUM('conta_entrada','conta_saida','fatura_saida') NOT NULL,
+    fk_id_conta INT NULL,
+    fk_id_fatura INT NULL,
+    FOREIGN KEY (fk_id_conta) REFERENCES conta(id_conta),
+    FOREIGN KEY (fk_id_fatura) REFERENCES fatura(id_fatura),
+    CHECK (
+        (fk_id_conta IS NOT NULL AND fk_id_fatura IS NULL) OR
+        (fk_id_conta IS NULL AND fk_id_fatura IS NOT NULL)
+    )
+);
+
+CREATE TABLE transacao (
+    id_transacao INT AUTO_INCREMENT PRIMARY KEY,
+    transacao_valor DECIMAL(12,2) NOT NULL,
+    transacao_data DATE NOT NULL,
+    transacao_descricao VARCHAR(120),
+    fk_id_categoria INT NOT NULL,
+    fk_id_operacao INT NOT NULL,
+    FOREIGN KEY (fk_id_categoria) REFERENCES categoria(id_categoria),
+    FOREIGN KEY (fk_id_operacao) REFERENCES operacao(id_operacao)
+);
+
+CREATE TABLE pagamento_fatura (
+    id_pagamento_fatura INT AUTO_INCREMENT PRIMARY KEY,
+    pagamento_fatura_data DATE NOT NULL,
+    fk_id_conta INT NOT NULL,
+    fk_id_fatura INT NOT NULL,
+    FOREIGN KEY (fk_id_conta) REFERENCES conta(id_conta),
+    FOREIGN KEY (fk_id_fatura) REFERENCES fatura(id_fatura)
+);
+
+CREATE TABLE orcamento (
+    id_orcamento INT AUTO_INCREMENT PRIMARY KEY,
+    orcamento_descricao VARCHAR(120) NOT NULL,
+    orcamento_periodo_inicio DATE NOT NULL,
+    orcamento_periodo_fim DATE NOT NULL,
+    orcamento_valor_planejado DECIMAL(12,2) NOT NULL,
+    fk_id_usuario INT NOT NULL,
+    fk_id_categoria INT NOT NULL,
+    FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario),
+    FOREIGN KEY (fk_id_categoria) REFERENCES categoria(id_categoria)
+);
+
+-- =======================================
+-- TRIGGERS
+-- =======================================
+
+-- 1. BEFORE INSERT em pagamento_fatura
+-- Impede pagamento se fatura estiver fechada
+DELIMITER $$
+
+CREATE TRIGGER trg_check_pagamento_fatura
+BEFORE INSERT ON pagamento_fatura
+FOR EACH ROW
+BEGIN
+    DECLARE v_status VARCHAR(20);
+
+    SELECT s.status_fatura_nome
+    INTO v_status
+    FROM fatura f
+    JOIN status_fatura s ON f.fk_id_status = s.id_status_fatura
+    WHERE f.id_fatura = NEW.fk_id_fatura;
+
+    IF v_status = 'fechada' THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Pagamento não permitido: fatura já está fechada.';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- 2. AFTER INSERT em transacao (conta saída/entrada e fatura saída)
+-- Atualiza saldo da conta ou valor da fatura
+DELIMITER $$
+
+CREATE TRIGGER trg_transacao_update
+AFTER INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_tipo ENUM('conta_entrada','conta_saida','fatura_saida');
+    DECLARE v_id_conta INT;
+    DECLARE v_id_fatura INT;
+
+    SELECT operacao_nome, fk_id_conta, fk_id_fatura
+    INTO v_tipo, v_id_conta, v_id_fatura
+    FROM operacao
+    WHERE id_operacao = NEW.fk_id_operacao;
+
+    -- Atualiza saldo da conta
+    IF v_tipo = 'conta_entrada' THEN
+        UPDATE conta SET conta_saldo_atual = conta_saldo_atual + NEW.transacao_valor
+        WHERE id_conta = v_id_conta;
+    ELSEIF v_tipo = 'conta_saida' THEN
+        UPDATE conta SET conta_saldo_atual = conta_saldo_atual - NEW.transacao_valor
+        WHERE id_conta = v_id_conta;
+    END IF;
+
+    -- Atualiza valor da fatura
+    IF v_tipo = 'fatura_saida' THEN
+        UPDATE fatura SET fatura_valor_total = fatura_valor_total + NEW.transacao_valor
+        WHERE id_fatura = v_id_fatura;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- 3. AFTER INSERT em pagamento_fatura
+-- Debita conta e fecha fatura
+DELIMITER $$
+
+CREATE TRIGGER trg_pagamento_fatura
+AFTER INSERT ON pagamento_fatura
+FOR EACH ROW
+BEGIN
+    DECLARE v_valor DECIMAL(12,2);
+
+    -- Busca valor da fatura
+    SELECT fatura_valor_total
+    INTO v_valor
+    FROM fatura
+    WHERE id_fatura = NEW.fk_id_fatura;
+
+    -- Debita o valor da conta usada
+    UPDATE conta
+    SET conta_saldo_atual = conta_saldo_atual - v_valor
+    WHERE id_conta = NEW.fk_id_conta;
+
+    -- Atualiza status da fatura para fechada
+    UPDATE fatura
+    SET fk_id_status = (SELECT id_status_fatura FROM status_fatura WHERE status_fatura_nome='fechada')
+    WHERE id_fatura = NEW.fk_id_fatura;
+END$$
+
+DELIMITER ;
+
+-- =======================================
+-- EVENT (substitui trigger de atraso)
+-- =======================================
+
+SET GLOBAL event_scheduler = ON;
+
+CREATE EVENT evt_marcar_faturas_atrasadas
+ON SCHEDULE EVERY 1 DAY
+STARTS CURRENT_TIMESTAMP
+DO
+  UPDATE fatura
+  SET fk_id_status = (
+      SELECT id_status_fatura FROM status_fatura WHERE status_fatura_nome='atrasada'
+  )
+  WHERE fatura_data_fim < CURDATE()
+    AND fk_id_status = (SELECT id_status_fatura FROM status_fatura WHERE status_fatura_nome='aberta');
