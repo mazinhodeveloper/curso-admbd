@@ -26,7 +26,7 @@ https://www.sp.senac.br/cursos-livres/curso-de-administrador-de-banco-de-dados
 - Estudantes ou profissionais de tecnologia da informação que possuem conhecimentos em Windows e aplicativos como Microsoft Office e desejam se aperfeiçoar na área de banco de dados.
 
 #### Docente / GitHub 
-- Docentes: Lilian Borges da Silveira / Celso luis Caldeira   
+- Docentes: Lilian Borges da Silveira / Celso Luis Caldeira   
 
 
 ## GitHub / Curso NodeJS 
