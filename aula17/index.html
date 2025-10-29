@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UC2 Projeto</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 60px; /* Adjust for fixed navbar */
+        }
+        .container { 
+            margin-bottom: 40px; 
+        } 
+        .jumbotron {
+            padding: 2rem 1rem;
+            margin-bottom: -1rem;
+            background-color: #e9ecef;
+            border-radius: .3rem;
+        }
+        .section-spacing {
+            padding-top: 60px;
+        }
+        h2, h2 { 
+            font-size: 1.6rem; 
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        /* X-Small devices (portrait phones, less than 576px)
+           No media query for `xs` since this is the default in Bootstrap */ 
+
+        /* Small devices (landscape phones, 576px and up) */ 
+        /* @media (min-width: 576px) { ul.navbar-nav li.nav-item { font-size: 0.9rem; } } */ 
+        @media (min-width: 6px) { ul.navbar-nav li.nav-item { font-size: 0.9rem; } }
+
+        /* Medium devices (tablets, 768px and up) */ 
+        @media (min-width: 768px) { ul.navbar-nav li.nav-item { font-size: 0.9rem; } }
+
+        /* Large devices (desktops, 992px and up) */ 
+        @media (min-width: 992px) { ul.navbar-nav li.nav-item { font-size: 0.9rem; } }
+
+        /* X-Large devices (large desktops, 1200px and up) */ 
+        @media (min-width: 1200px) { ul.navbar-nav li.nav-item { font-size: 1rem; } }
+
+        footer .container { margin-bottom: 0px; padding-bottom: 10px; font-size: 0.8rem; } 
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">UC2 Projeto</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#banco-tabelas">Banco e Tabelas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#inserir-dados">Inserir Dados</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#entrada-estoque">Entrada de Estoque</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#saida-vendas">Saída de Vendas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#realizar-vendas">Realizar Vendas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#verificar-resultados">Verificar Resultados</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#juncoes">Junções</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#mer">MER</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="jumbotron text-center">
+            <h1 class="display-5">Projeto de Banco de Dados de E-commerce</h1>
+            <p class="lead">Script SQL para gerenciar produtos, clientes, vendas e movimentações de estoque com gatilhos.</p>
+        </div>
+
+        <section id="banco-tabelas" class="section-spacing">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Criação de Banco de Dados e Estrutura de Tabelas</h2>
+                </div>
+                <div class="card-body">
+                    <p>Configuração inicial do banco de dados e a criação das tabelas necessárias: <code>Produto</code>, <code>Cliente</code>, <code>Venda</code>, <code>ItemVenda</code>, e <code>MovimentacaoEstoque</code>.</p>
+                    <pre><code class="sql">
+-- Estrutura de tabelas 
+
+-- Produto (id_produto PK, nome, descricao, preco, quantidade_estoque)
+-- Cliente (id_cliente PK, nome, email, telefone, endereco)
+-- Venda (id_venda PK, id_cliente FK, data_venda, valor_total)
+-- ItemVenda (id_item_venda PK, id_venda FK, id_produto FK, quantidade, preco_unitario, subtotal)
+-- MovimentacaoEstoque (id_movimentacao PK, id_produto FK, tipo, quantidade, data_movimentacao, origem, observacao)
+
+-- Criação do banco de dados e tabelas
+CREATE DATABASE Loja;
+USE Loja;
+
+-- Tabela de Produtos
+CREATE TABLE Produto (
+    id_produto SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT,
+    preco DECIMAL(10, 2) NOT NULL,
+    quantidade_estoque INT DEFAULT 0
+);
+
+-- Tabela de Clientes
+CREATE TABLE Cliente (
+    id_cliente SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    telefone VARCHAR(20),
+    endereco TEXT
+);
+
+-- Tabela de Vendas
+CREATE TABLE Venda (
+    id_venda SERIAL PRIMARY KEY,
+    id_cliente INT REFERENCES Cliente(id_cliente),
+    data_venda TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    valor_total DECIMAL(10, 2)
+);
+
+-- Itens da Venda
+CREATE TABLE ItemVenda (
+    id_item_venda SERIAL PRIMARY KEY,
+    id_venda INT REFERENCES Venda(id_venda),
+    id_produto INT REFERENCES Produto(id_produto),
+    quantidade INT NOT NULL,
+    preco_unitario DECIMAL(10, 2) NOT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL
+);
+
+-- Movimentações de Estoque
+CREATE TABLE MovimentacaoEstoque (
+    id_movimentacao SERIAL PRIMARY KEY,
+    id_produto INT REFERENCES Produto(id_produto),
+    tipo VARCHAR(10) CHECK (tipo IN ('ENTRADA', 'SAIDA')),
+    quantidade INT NOT NULL,
+    data_movimentacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    origem VARCHAR(20), -- Ex: 'VENDA', 'REPOSICAO', 'AJUSTE'
+    observacao TEXT
+);
+                    </code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="inserir-dados" class="section-spacing">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Inserção de Dados em Tabelas</h2>
+                </div>
+                <div class="card-body">
+                    <p>Preenche as tabelas <code>Cliente</code> e <code>Produto</code> com os dados iniciais.</p>
+                    <pre><code class="sql">
+-- Inserindo dados nas tabelas 
+
+-- Tabela Clientes
+INSERT INTO Cliente (nome, email, telefone, endereco) VALUES
+('Ana Paula Souza', 'ana.souza@email.com', '(11) 98888-1111', 'Rua das Flores, 123, SP'),
+('Carlos Eduardo Lima', 'carlos.lima@email.com', '(21) 97777-2222', 'Av. Central, 456, RJ'),
+('Mariana Silva Costa', 'mariana.silva@email.com', '(31) 96666-3333', 'Rua Azul, 789, BH'),
+('João Pedro Martins', 'joao.martins@email.com', '(41) 95555-4444', 'Av. das Palmeiras, 321, PR'),
+('Fernanda Ribeiro', 'fernanda.ribeiro@email.com', '(51) 94444-5555', 'Rua Verde, 654, RS'),
+('Lucas Almeida', 'lucas.almeida@email.com', '(61) 93333-6666', 'SHN Quadra 3, Brasília, DF');
+
+-- Tabela Produto
+INSERT INTO Produto (nome, descricao, preco, quantidade_estoque) VALUES
+('Notebook Dell Inspiron', 'Notebook 15.6", Intel i5, 8GB RAM, SSD 256GB', 3500.00, 0),
+('Mouse Logitech M170', 'Mouse sem fio com conexão USB', 80.00, 0),
+('Teclado Mecânico Redragon', 'Teclado com iluminação RGB', 250.00, 0),
+('Monitor LG 24"', 'Monitor LED Full HD', 950.00, 0),
+('HD Externo Seagate 1TB', 'Disco rígido portátil USB 3.0', 320.00, 0),
+('Smartphone Samsung A34', 'Android, 128GB, Tela AMOLED', 1850.00, 0),
+('Cadeira Gamer ThunderX3', 'Cadeira ergonômica com apoio lombar', 1200.00, 0),
+('Webcam Logitech C920', 'Webcam Full HD com microfone', 480.00, 0),
+('Fone Bluetooth JBL Tune', 'Fone sem fio com som JBL Pure Bass', 300.00, 0),
+('Carregador Turbo Motorola', 'Carregador rápido USB-C 30W', 120.00, 0);
+
+-- Reposição de estoque (entrada)
+INSERT INTO MovimentacaoEstoque (id_produto, tipo, quantidade, origem, observacao) VALUES
+(1, 'ENTRADA', 15, 'REPOSICAO', 'Compra fornecedor Dell'),
+(2, 'ENTRADA', 50, 'REPOSICAO', 'Compra fornecedor Logitech'),
+(3, 'ENTRADA', 30, 'REPOSICAO', 'Compra fornecedor Redragon'),
+(4, 'ENTRADA', 20, 'REPOSICAO', 'Compra fornecedor LG'),
+(5, 'ENTRADA', 25, 'REPOSICAO', 'Compra fornecedor Seagate'),
+(6, 'ENTRADA', 18, 'REPOSICAO', 'Compra fornecedor Samsung'),
+(7, 'ENTRADA', 10, 'REPOSICAO', 'Compra fornecedor ThunderX3'),
+(8, 'ENTRADA', 22, 'REPOSICAO', 'Compra fornecedor Logitech'),
+(9, 'ENTRADA', 35, 'REPOSICAO', 'Compra fornecedor JBL'),
+(10, 'ENTRADA', 40, 'REPOSICAO', 'Compra fornecedor Motorola');
+
+-- Atualiza os estoques de Produto conforme entrada. Atualização feita de forma manual
+UPDATE Produto SET quantidade_estoque = 15 WHERE id_produto = 1;
+UPDATE Produto SET quantidade_estoque = 50 WHERE id_produto = 2;
+UPDATE Produto SET quantidade_estoque = 30 WHERE id_produto = 3;
+UPDATE Produto SET quantidade_estoque = 20 WHERE id_produto = 4;
+UPDATE Produto SET quantidade_estoque = 25 WHERE id_produto = 5;
+UPDATE Produto SET quantidade_estoque = 18 WHERE id_produto = 6;
+UPDATE Produto SET quantidade_estoque = 10 WHERE id_produto = 7;
+UPDATE Produto SET quantidade_estoque = 22 WHERE id_produto = 8;
+UPDATE Produto SET quantidade_estoque = 35 WHERE id_produto = 9;
+UPDATE Produto SET quantidade_estoque = 40 WHERE id_produto = 10;
+                    </code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="entrada-estoque" class="section-spacing">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Gatilho: Cadastrar Entrada de Estoque</h2>
+                </div>
+                <div class="card-body">
+                    <p>Este gatilho atualiza automaticamente a <code>quantidade_estoque</code> na tabela <code>Produto</code> sempre que uma nova ENTRADA (entrada de estoque) é registrada na tabela <code>MovimentacaoEstoque</code>.</p>
+                    <pre><code class="sql">
+-- Vamos agora criar um gatilho para atualizar tabela produtos automaticamente após uma reposição de estoque (entrada)
+
+-- Gatilho: registrar ENTRADA de estoque
+-- Função para atualizar o estoque na entrada
+
+-- O DELIMITER é usado para alterar o delimitador padrão (;) para que o MySQL
+-- não interprete o ponto e vírgula dentro do corpo do trigger como o fim da instrução.
+DELIMITER $$
+
+CREATE TRIGGER trg_registrar_entrada_estoque
+-- O trigger será acionado DEPOIS de uma INSERÇÃO na tabela MovimentacaoEstoque
+AFTER INSERT ON MovimentacaoEstoque
+FOR EACH ROW
+BEGIN
+    IF NEW.tipo = 'ENTRADA' THEN
+        UPDATE Produto
+        SET quantidade_estoque = quantidade_estoque + NEW.quantidade
+        WHERE id_produto = NEW.id_produto;
+    END IF;
+END$$
+
+-- Retorna o delimitador ao seu valor padrão.
+DELIMITER ;
+
+-- Teste com o item 10 (Carregador Turbo Motorola)
+INSERT INTO MovimentacaoEstoque (id_produto, tipo, quantidade, origem, observacao)
+VALUES (10, 'ENTRADA', 5, 'REPOSICAO', 'Nova reposição do carregador Motorola');
+                    </code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="saida-vendas" class="section-spacing">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Gatilho: Cadastrar Saída de Vendas</h2>
+                </div>
+                <div class="card-body">
+                    <p>Define duas triggers relacionadas a vendas:</p>
+                    <ul>
+                        <li><code>trg_calcula_subtotal_item</code>: Calculates the subtotal for each item before it's inserted into <code>ItemVenda</code>.</li>
+                        <li><code>trg_saida_venda_completa</code>: After an item is inserted into <code>ItemVenda</code>, this trigger updates the total value of the sale, deducts the quantity from product stock, and records the movement in <code>MovimentacaoEstoque</code>.</li>
+                    </ul>
+                    <pre><code class="sql">
+-- Gatilho: registrar SAÍDA em vendas 
+
+-- Função para registrar movimentações de saída ao inserir item de venda
+
+DELIMITER $$
+
+-- TRIGGER 1: CALCULAR O SUBTOTAL ANTES DE INSERIR O ITEM
+-- Este trigger é do tipo BEFORE INSERT, ele roda antes do dado ser salvo.
+-- Sua única função é calcular e preencher o campo 'subtotal'.
+CREATE TRIGGER trg_calcula_subtotal_item
+BEFORE INSERT ON ItemVenda
+FOR EACH ROW
+BEGIN
+    SET NEW.subtotal = NEW.quantidade * NEW.preco_unitario;
+END$$
+
+
+-- TRIGGER 2: ATUALIZAR ESTOQUE E TOTAIS APÓS INSERIR O ITEM
+-- Este trigger é do tipo AFTER INSERT, ele roda logo após o dado ser salvo.
+CREATE TRIGGER trg_saida_venda_completa
+AFTER INSERT ON ItemVenda
+FOR EACH ROW
+BEGIN
+    -- Ação 1: Atualiza o valor total na tabela principal de Venda, somando todos os subtotais da tabela ItemVenda.
+    UPDATE Venda
+    SET valor_total = (SELECT SUM(iv.subtotal) FROM ItemVenda iv WHERE iv.id_venda = NEW.id_venda)
+    WHERE id_venda = NEW.id_venda;
+
+    -- Ação 2: Deduz a quantidade do estoque do produto
+    UPDATE Produto
+    SET quantidade_estoque = quantidade_estoque - NEW.quantidade
+    WHERE id_produto = NEW.id_produto;
+
+    -- Ação 3: Registra a movimentação de saída no histórico
+    INSERT INTO MovimentacaoEstoque (id_produto, tipo, quantidade, origem, observacao)
+    VALUES (
+        NEW.id_produto,
+        'SAIDA',
+        NEW.quantidade,
+        'VENDA',
+        CONCAT('Venda ID: ', NEW.id_venda, ', Item ID: ', NEW.id_item_venda)
+    );
+END$$
+
+DELIMITER ;
+                    </code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="realizar-vendas" class="section-spacing">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Realização de Vendas</h2>
+                </div>
+                <div class="card-body">
+                    <p>Demonstra como as vendas são registradas, acionando as triggers previamente definidas para atualizar os totais de estoque e vendas automaticamente.</p>
+                    <pre><code class="sql">
+-- Realizando vendas 
+
+-- 1. Registra uma nova venda para a cliente Ana Paula (ID 1)
+INSERT INTO Venda (id_cliente) VALUES (1);
+SET @id_ultima_venda = LAST_INSERT_ID();
+
+-- 2. Insere os itens na venda. CADA INSERT ABAIXO VAI ACIONAR AMBOS OS TRIGGERS com a variável @id_ultima_venda.
+
+-- Venda de 2 Cadeiras Gamer (ID 7) a R$ 1200.00 cada
+-- O trigger 'trg_calcula_subtotal_item' vai calcular o subtotal (2 * 1200 = 2400)
+-- O trigger 'trg_saida_venda_completa' vai:
+--   - Somar 2400 ao valor_total da Venda 1
+--   - Subtrair 2 do estoque de Cadeira Gamer
+--   - Registrar a saída de 2 cadeiras na MovimentacaoEstoque
+INSERT INTO ItemVenda (id_venda, id_produto, quantidade, preco_unitario)
+VALUES (@id_ultima_venda, 7, 2, 1200.00);
+
+-- Venda de 1 Notebook Dell (ID 1) a R$ 3500.00
+-- O trigger 'trg_calcula_subtotal_item' vai calcular o subtotal (1 * 3500 = 3500)
+-- O trigger 'trg_saida_venda_completa' vai:
+--   - Somar 3500 ao valor_total da Venda 1
+--   - Subtrair 1 do estoque de Notebook Dell
+--   - Registrar a saída de 1 Notebook Dell na MovimentacaoEstoque
+INSERT INTO ItemVenda (id_venda, id_produto, quantidade, preco_unitario)
+VALUES (@id_ultima_venda, 1, 1, 3500.00);
+                    </code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="verificar-resultados" class="section-spacing">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Verificando Resultados</h2>
+                </div>
+                <div class="card-body">
+                    <p>Estas consultas permitem verificar o impacto das vendas e dos gatilhos nas tabelas do banco de dados.</p>
+                    <pre><code class="sql">
+-- VERIFICANDO OS RESULTADOS
+
+-- Verificando a tabela Venda (o valor_total deve ser 2400 + 3500 = 5900)
+SELECT * FROM Venda;
+
+-- Verificando a tabela ItemVenda (os subtotais devem estar preenchidos)
+SELECT * FROM ItemVenda;
+
+-- Verificando o estoque dos produtos (as quantidades devem ter sido deduzidas dos ID 1 e ID 7)
+SELECT * FROM Produto;
+
+-- Verificando o histórico de movimentações (deve haver duas novas saídas)
+SELECT id_produto, tipo, quantidade, origem, observacao FROM MovimentacaoEstoque;
+                    </code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="juncoes" class="section-spacing">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Exemplos de Junções</h2>
+                </div>
+                <div class="card-body">
+                    <p>Esta seção fornece exemplos de diferentes tipos de operações SQL JOIN usando as tabelas criadas.</p>
+
+                    <h3>Inner Join</h3>
+                    <p>Retorna apenas as linhas que possuem valores correspondentes em ambas as tabelas.</p>
+                    <pre><code class="sql">
+-- INNER JOIN: Clientes e suas Vendas
+-- Retorna todas as vendas e as informações do cliente correspondente.
+-- Apenas vendas que possuem um cliente válido serão retornadas.
+SELECT
+    C.nome AS NomeCliente,
+    V.id_venda,
+    V.data_venda,
+    V.valor_total
+FROM
+    Cliente AS C
+INNER JOIN
+    Venda AS V ON C.id_cliente = V.id_cliente;
+                    </code></pre>
+
+                    <h3>Left Join</h3>
+                    <p>Retorna todas as linhas da tabela à esquerda e as linhas correspondentes da tabela à direita. Se não houver correspondência, NULL será retornado para o lado direito.</p>
+                    <pre><code class="sql">
+-- LEFT JOIN: Clientes e suas Vendas (incluindo clientes sem vendas)
+-- Retorna todos os clientes e, se houver, suas vendas correspondentes.
+-- Clientes que não realizaram nenhuma venda ainda aparecerão na lista com NULL nos campos de venda.
+SELECT
+    C.nome AS NomeCliente,
+    V.id_venda,
+    V.data_venda,
+    V.valor_total
+FROM
+    Cliente AS C
+LEFT JOIN
+    Venda AS V ON C.id_cliente = V.id_cliente;
+                    </code></pre>
+
+                    <h3>Right Join</h3>
+                    <p>Retorna todas as linhas da tabela da direita e as linhas correspondentes da tabela da esquerda. Se não houver correspondência, NULL será retornado para o lado esquerdo.</p>
+                    <pre><code class="sql">
+-- RIGHT JOIN: Vendas e os Produtos vendidos (detalhes dos itens de venda)
+-- Retorna todos os itens de venda e as informações dos produtos correspondentes.
+-- Se, por algum motivo, um produto não estiver na tabela Produto (o que não deve acontecer com FKs bem definidas),
+-- ainda assim o item de venda apareceria com NULL para os dados do produto.
+SELECT
+    IV.id_item_venda,
+    IV.quantidade,
+    IV.preco_unitario,
+    IV.subtotal,
+    P.nome AS NomeProduto,
+    P.preco AS PrecoProdutoOriginal
+FROM
+    ItemVenda AS IV
+RIGHT JOIN
+    Produto AS P ON IV.id_produto = P.id_produto;
+                    </code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="mer" class="section-spacing">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Modelo de Entidade Relacionamento (MER)</h2>
+                </div>
+                <div class="card-body">
+                    <p>Projeto de Banco de Dados de E-commerce</p> 
+                    <img src="images/LojaVirtual-1.svg" alt="Modelo de Entidade Relacionamento (MER) - E-commerce" width="100%">
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">UC2 Projeto desenvolvido por Beatriz, Carlos, Daniele e Edmar.</span>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
