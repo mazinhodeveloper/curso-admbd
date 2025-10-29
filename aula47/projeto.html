@@ -1,0 +1,1601 @@
+<!-- HEADER -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Controle Financeiro Pessoal - Projeto</title>
+    <meta name="description" content="The small framework with powerful features">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="assets/images/favicon.ico">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <!-- HEADER: MENU + HEROE SECTION -->
+    <header>
+        <div class="menu">
+            <ul>
+                <li class="logo">
+                    <a href="index.html">
+                        <img src="assets/images/logo-controle-financeiro.png" alt="Controle Financeiro" width="150" />
+                    </a>
+                </li>
+                <li class="menu-toggle">
+                    <button id="menuToggle">&#9776;</button>
+                </li>
+                <li class="menu-item hidden"><a href="index.html">Início</a></li>
+                <li class="menu-item hidden"><a href="projeto.html">Projeto</a></li>
+                <li class="menu-item hidden"><a href="dicionario-de-dados.html">Dicionário de Dados</a></li>
+                <li class="menu-item hidden"><a href="participantes.html">Participantes</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+        <div class="heroe">
+            <section>
+                <h1>Projeto</h1>
+            </section>
+        </div>
+
+        <section>
+            <h2>Diagrama de Entidade Relacionamento - DER</h2>
+            <h3>Representação Gráfica do MER</h3>
+            <div class="container-half">
+                <div class="half">
+                    <h4>Modelo Conceitual</h4> 
+                    <span class="image-link" data-modal="modal1">
+                        <img src="assets/images/modelo-conceitual.png" title="Modelo Conceitual" width="100%" />
+                    </span> 
+                </div>
+                <div class="half">
+                    <h4>Modelo Lógico</h4>
+                    <span class="image-link" data-modal="modal2">
+                        <img src="assets/images/modelo-logico.png" title="Modelo Lógico" width="100%" />
+                    </span> 
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3>Configuração Inicial</h3>
+            <p>
+                Configurações iniciais do banco de dados. <br>
+                <code>
+                    <pre>
+SET sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Banco de Dados</h3>
+            <p>
+                DROP DATABASE IF EXISTS, deleta o banco de dados se existir. CREATE DATABASE, cria o banco de dados. USE, usa o banco de dados. <br>
+                <code>
+                    <pre>
+DROP DATABASE IF EXISTS financeiro;
+CREATE DATABASE financeiro;
+USE financeiro;</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Tabelas</h3>
+            <p>
+                CREATE TABLE, cria as tabelas do banco de dados. <br>
+                <code>
+                    <pre>
+-- Usuário
+CREATE TABLE usuario (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_nome VARCHAR(120) NOT NULL,
+    usuario_email VARCHAR(120) NOT NULL UNIQUE,
+    usuario_senha VARCHAR(255) NOT NULL,
+    usuario_data_cadastro DATE NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Categoria (com hierarquia)
+CREATE TABLE categoria (
+    id_categoria INT AUTO_INCREMENT PRIMARY KEY,
+    categoria_nome VARCHAR(120) NOT NULL,
+    fk_id_categoria INT NULL,
+    CONSTRAINT fk_categoria_pai FOREIGN KEY (fk_id_categoria) REFERENCES categoria(id_categoria)
+        ON DELETE SET NULL   -- se apagar a categoria pai, mantém a filha sem vínculo
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Cartão
+CREATE TABLE cartao (
+    id_cartao INT AUTO_INCREMENT PRIMARY KEY,
+    cartao_numero VARCHAR(50) NOT NULL,
+    cartao_validade DATE NOT NULL,
+    cartao_limite_credito DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    fk_id_usuario INT NOT NULL,
+    CONSTRAINT fk_cartao_usuario FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario)
+        ON DELETE CASCADE    -- se apagar usuário, apaga cartões juntos
+        ON UPDATE CASCADE,
+    CONSTRAINT chk_limite_credito_positivo CHECK (cartao_limite_credito >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Conta
+CREATE TABLE conta (
+    id_conta INT AUTO_INCREMENT PRIMARY KEY,
+    conta_numero VARCHAR(50) NOT NULL,
+    conta_tipo ENUM('corrente','poupanca','salario') NOT NULL,
+    conta_saldo_atual DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    conta_banco VARCHAR(50) NOT NULL,
+    fk_id_usuario INT NOT NULL,
+    CONSTRAINT fk_conta_usuario FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario)
+        ON DELETE CASCADE    -- se apagar usuário, apaga contas juntas
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Status de Fatura
+CREATE TABLE status_fatura (
+    id_status_fatura INT AUTO_INCREMENT PRIMARY KEY,
+    status_fatura_nome ENUM('aberta','fechada','atrasada') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Fatura
+CREATE TABLE fatura (
+    id_fatura INT AUTO_INCREMENT PRIMARY KEY,
+    fatura_data_inicio DATE NOT NULL,
+    fatura_data_fim DATE NOT NULL,
+    fatura_valor_total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    fk_id_cartao INT NOT NULL,
+    fk_id_status INT NOT NULL,
+    CONSTRAINT fk_fatura_cartao FOREIGN KEY (fk_id_cartao) REFERENCES cartao(id_cartao)
+        ON DELETE CASCADE    -- se apagar cartão, apaga as faturas dele
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_fatura_status FOREIGN KEY (fk_id_status) REFERENCES status_fatura(id_status_fatura)
+        ON DELETE RESTRICT   -- não pode apagar status em uso
+        ON UPDATE CASCADE,
+    CONSTRAINT chk_fatura_period CHECK (fatura_data_fim >= fatura_data_inicio)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Orçamento
+CREATE TABLE orcamento (
+    id_orcamento INT AUTO_INCREMENT PRIMARY KEY,
+    orcamento_descricao VARCHAR(120) NULL,
+    orcamento_periodo_inicio DATE NOT NULL,
+    orcamento_periodo_fim DATE NOT NULL,
+    orcamento_valor_planejado DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    orcamento_valor_usado DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    fk_id_usuario INT NOT NULL,
+    fk_id_categoria INT NOT NULL,
+    CONSTRAINT fk_orcamento_usuario FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario)
+        ON DELETE CASCADE    -- se apagar usuário, apaga orçamentos
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_orcamento_categoria FOREIGN KEY (fk_id_categoria) REFERENCES categoria(id_categoria)
+        ON DELETE RESTRICT   -- não pode apagar categoria usada em orçamento
+        ON UPDATE CASCADE,
+    CONSTRAINT chk_orcamento_period CHECK (orcamento_periodo_fim >= orcamento_periodo_inicio)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Pagamento de Fatura
+CREATE TABLE pagamento_fatura (
+    id_pagamento_fatura INT AUTO_INCREMENT PRIMARY KEY,
+    pagamento_fatura_data DATE NOT NULL,
+    fk_id_conta INT NOT NULL,
+    fk_id_fatura INT NOT NULL,
+    CONSTRAINT fk_pagamentofatura_conta FOREIGN KEY (fk_id_conta) REFERENCES conta(id_conta)
+        ON DELETE RESTRICT   -- não pode apagar conta se tiver pagamentos
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_pagamentofatura_fatura FOREIGN KEY (fk_id_fatura) REFERENCES fatura(id_fatura)
+        ON DELETE CASCADE    -- se apagar fatura, apaga os pagamentos
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Operação
+CREATE TABLE operacao (
+    id_operacao INT AUTO_INCREMENT PRIMARY KEY,
+    operacao_nome ENUM('conta_saida','conta_entrada','fatura_saida') NOT NULL,
+    fk_id_conta INT NULL,
+    fk_id_fatura INT NULL,
+    CONSTRAINT fk_operacao_conta FOREIGN KEY (fk_id_conta) REFERENCES conta(id_conta)
+        ON DELETE CASCADE    -- se apagar conta, apaga operações ligadas
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_operacao_fatura FOREIGN KEY (fk_id_fatura) REFERENCES fatura(id_fatura)
+        ON DELETE CASCADE    -- se apagar fatura, apaga operações ligadas
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Transação
+CREATE TABLE transacao (
+    id_transacao INT AUTO_INCREMENT PRIMARY KEY,
+    transacao_valor DECIMAL(10,2) NOT NULL,
+    transacao_data DATE NOT NULL,
+    transacao_descricao VARCHAR(120) NULL,
+    fk_id_categoria INT NOT NULL,
+    fk_id_operacao INT NOT NULL,
+    CONSTRAINT fk_transacao_categoria FOREIGN KEY (fk_id_categoria) REFERENCES categoria(id_categoria)
+        ON DELETE RESTRICT   -- não pode apagar categoria em uso
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_transacao_operacao FOREIGN KEY (fk_id_operacao) REFERENCES operacao(id_operacao)
+        ON DELETE CASCADE    -- se apagar operação, apaga transações dela
+        ON UPDATE CASCADE,
+    CONSTRAINT chk_transacao_valor_positivo CHECK (transacao_valor > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+SET FOREIGN_KEY_CHECKS = 1;</pre>
+                </code>
+            </p>
+        </section>
+
+        <section>
+            <h3>Triggers</h3>
+            <p>
+                TRIGGERS, triggers são gatilhos. <br>
+                <code>
+                    <pre>
+-- ------------------------------------------------
+-- =======================================
+-- Criação de TRIGGERS
+-- =======================================
+-- Mapeamento das TRIGGERS
+--
+-- 1. BEFORE INSERT ON operacao
+-- Validação se operação é no cartão OU na conta
+--
+-- 2. BEFORE INSERT ON pagamento_fatura 
+-- Bloqueia pagamento se fatura estiver fechada
+--
+-- 3. BEFORE INSERT ON transacao
+-- Checa limite do cartão antes de efetuar transação
+--
+-- 4. BEFORE INSERT ON transacao
+-- Bloqueia transação feita em fatura fechada/atrasada
+--
+-- 5. BEFORE INSERT ON pagamento_fatura
+-- Pagamento de Fatura, checando saldo conta (usando a FUNCTION fn_verifica_saldo_suficiente)
+--
+-- 6. BEFORE INSERT ON transacao
+-- Débito em Conta, checando saldo conta (usando a FUNCTION fn_verifica_saldo_suficiente)
+--
+-- 7. AFTER INSERT ON transacao
+-- Atualiza o valor de saldo da conta ou fatura dependendo da transação
+--
+-- 8. AFTER INSERT ON pagamento_fatura
+-- Após pagamento da fatura, debita valor da conta e fecha a fatura
+--
+-- 9. AFTER INSERT ON transacao
+-- A cada nova transação de despesa, encontra o orçamento correspondente do usuário para aquela categoria e período
+--
+-- 10. AFTER UPDATE ON transacao
+-- Recalcula saldo da conta ou valor da fatura quando o valor da transação é alterado
+--
+-- 11. AFTER DELETE ON transacao
+-- Estorna saldo ou valor da fatura se a transação for removida
+--
+-- 12. AFTER DELETE ON pagamento_fatura
+-- Estorna o pagamento: devolve saldo e reabre fatura
+--
+-- 13. BEFORE UPDATE ON orcamento
+-- Impede reduzir valor planejado abaixo do já usado
+--
+-- =======================================
+
+USE financeiro;
+DELIMITER $$
+
+-- -------------------------------------------------------
+-- 1. BEFORE INSERT ON operacao
+-- Validação se operação é no cartão OU na conta
+
+CREATE TRIGGER trg_valida_operacao
+BEFORE INSERT ON operacao
+FOR EACH ROW
+BEGIN
+    IF (NEW.fk_id_conta IS NULL AND NEW.fk_id_fatura IS NULL)
+       OR (NEW.fk_id_conta IS NOT NULL AND NEW.fk_id_fatura IS NOT NULL) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Operação deve referenciar apenas Conta OU Fatura, nunca ambos ou nenhum.';
+    END IF;
+END$$
+<span class="image-link" data-modal="modal-Trigger1"><img src="assets/images/file-code-fill.svg" alt="Validação se operação é no cartão OU na conta" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------
+-- 2. BEFORE INSERT ON pagamento_fatura 
+-- Bloqueia pagamento se fatura estiver fechada
+
+CREATE TRIGGER trg_valida_pagamento_fatura
+BEFORE INSERT ON pagamento_fatura
+FOR EACH ROW
+BEGIN
+    DECLARE v_status VARCHAR(20);
+
+    SELECT s.status_fatura_nome
+    INTO v_status
+    FROM fatura f
+    JOIN status_fatura s ON f.fk_id_status = s.id_status_fatura
+    WHERE f.id_fatura = NEW.fk_id_fatura;
+
+    IF v_status = 'fechada' THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Pagamento não permitido: fatura já está fechada.';
+    END IF;
+END$$
+<span class="image-link" data-modal="modal-Trigger2"><img src="assets/images/file-code-fill.svg" alt="Bloqueia pagamento se fatura estiver fechada" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------
+-- 3. BEFORE INSERT ON transacao
+-- Checa limite do cartão antes de efetuar transação
+
+CREATE TRIGGER trg_valida_transacao_limite_cartao
+BEFORE INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_tipo ENUM('conta_entrada','conta_saida','fatura_saida');
+    DECLARE v_id_fatura INT;
+    DECLARE v_id_cartao INT;
+    DECLARE v_limite DECIMAL(10,2);
+    DECLARE v_total DECIMAL(10,2);
+
+    -- Descobre o tipo da operação e a fatura (se existir)
+    SELECT operacao_nome, fk_id_fatura
+    INTO v_tipo, v_id_fatura
+    FROM operacao
+    WHERE id_operacao = NEW.fk_id_operacao;
+
+    -- Só valida se for fatura_saida
+    IF v_tipo = 'fatura_saida' THEN
+        -- Pega o cartão da fatura
+        SELECT fk_id_cartao INTO v_id_cartao
+        FROM fatura
+        WHERE id_fatura = v_id_fatura;
+
+        -- Busca limite do cartão
+        SELECT cartao_limite_credito INTO v_limite
+        FROM cartao
+        WHERE id_cartao = v_id_cartao;
+
+        -- Calcula valor total já lançado em faturas abertas desse cartão
+        SELECT IFNULL(SUM(fatura_valor_total),0)
+        INTO v_total
+        FROM fatura f
+        JOIN status_fatura s ON f.fk_id_status = s.id_status_fatura
+        WHERE f.fk_id_cartao = v_id_cartao
+          AND s.status_fatura_nome = 'aberta';
+
+        -- Se exceder limite, cancela o insert
+        IF (v_total + NEW.transacao_valor) > v_limite THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Transação negada: limite de crédito do cartão excedido.';
+        END IF;
+    END IF;
+END$$
+<span class="image-link" data-modal="modal-Trigger3"><img src="assets/images/file-code-fill.svg" alt="Trigger 3" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------
+-- 4. BEFORE INSERT ON transacao
+-- Bloqueia transação feita em fatura fechada/atrasada
+
+CREATE TRIGGER trg_valida_transacao_fatura_status
+BEFORE INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_tipo ENUM('conta_entrada','conta_saida','fatura_saida');
+    DECLARE v_id_fatura INT;
+    DECLARE v_status VARCHAR(20);
+
+    SELECT operacao_nome, fk_id_fatura
+    INTO v_tipo, v_id_fatura
+    FROM operacao
+    WHERE id_operacao = NEW.fk_id_operacao;
+
+    IF v_tipo = 'fatura_saida' THEN
+        SELECT s.status_fatura_nome
+        INTO v_status
+        FROM fatura f
+        JOIN status_fatura s ON f.fk_id_status = s.id_status_fatura
+        WHERE f.id_fatura = v_id_fatura;
+
+        IF v_status IN ('fechada','atrasada') THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Não é permitido inserir transação em fatura fechada ou atrasada.';
+        END IF;
+    END IF;
+END$$
+<span class="image-link" data-modal="modal-Trigger4"><img src="assets/images/file-code-fill.svg" alt="Trigger 4" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------
+-- 5. BEFORE INSERT ON pagamento_fatura
+-- Pagamento de Fatura, checando saldo conta (usando a FUNCTION fn_verifica_saldo_suficiente)
+
+CREATE TRIGGER trg_valida_saldo_pagamento_fatura
+BEFORE INSERT ON pagamento_fatura
+FOR EACH ROW
+BEGIN
+    DECLARE v_valor_fatura DECIMAL(10,2);
+
+    -- Pega o valor da fatura que está sendo paga
+    SELECT fatura_valor_total INTO v_valor_fatura
+    FROM fatura WHERE id_fatura = NEW.fk_id_fatura;
+
+    -- CHAMA A FUNÇÃO CENTRAL: Se a função retornar FALSE (saldo insuficiente), bloqueia a operação
+    IF NOT fn_verifica_saldo_suficiente(NEW.fk_id_conta, v_valor_fatura) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Saldo insuficiente para pagar o valor total da fatura.';
+    END IF;
+END$$
+<span class="image-link" data-modal="modal-Trigger5"><img src="assets/images/file-code-fill.svg" alt="Trigger 5" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------
+-- 6. BEFORE INSERT ON transacao
+-- Débito em Conta, checando saldo conta (usando a FUNCTION fn_verifica_saldo_suficiente)
+
+CREATE TRIGGER trg_valida_saldo_debito_conta
+BEFORE INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_operacao_nome VARCHAR(20);
+    DECLARE v_id_conta INT;
+
+    SELECT operacao_nome, fk_id_conta INTO v_operacao_nome, v_id_conta
+    FROM operacao WHERE id_operacao = NEW.fk_id_operacao;
+
+    -- Apenas continua se for uma saída de conta
+    IF v_operacao_nome = 'conta_saida' THEN
+        -- CHAMA A FUNÇÃO CENTRAL: Se a função retornar FALSE (saldo insuficiente), bloqueia a operação
+        IF NOT fn_verifica_saldo_suficiente(v_id_conta, NEW.transacao_valor) THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Saldo insuficiente para realizar a transação de débito.';
+        END IF;
+    END IF;
+END$$
+<span class="image-link" data-modal="modal-Trigger6"><img src="assets/images/file-code-fill.svg" alt="Trigger 6" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------
+-- 7. AFTER INSERT ON transacao
+-- Atualiza o valor de saldo da conta ou fatura dependendo da transação
+
+CREATE TRIGGER trg_atualiza_transacao_valor
+AFTER INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_tipo ENUM('conta_entrada','conta_saida','fatura_saida');
+    DECLARE v_id_conta INT;
+    DECLARE v_id_fatura INT;
+
+    SELECT operacao_nome, fk_id_conta, fk_id_fatura
+    INTO v_tipo, v_id_conta, v_id_fatura
+    FROM operacao
+    WHERE id_operacao = NEW.fk_id_operacao;
+
+    IF v_tipo = 'conta_entrada' THEN
+        UPDATE conta SET conta_saldo_atual = conta_saldo_atual + NEW.transacao_valor
+        WHERE id_conta = v_id_conta;
+    ELSEIF v_tipo = 'conta_saida' THEN
+        UPDATE conta SET conta_saldo_atual = conta_saldo_atual - NEW.transacao_valor
+        WHERE id_conta = v_id_conta;
+    END IF;
+
+    IF v_tipo = 'fatura_saida' THEN
+        UPDATE fatura SET fatura_valor_total = fatura_valor_total + NEW.transacao_valor
+        WHERE id_fatura = v_id_fatura;
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+-- 8. AFTER INSERT ON pagamento_fatura
+-- Após pagamento da fatura, debita valor da conta e fecha a fatura
+
+CREATE TRIGGER trg_atualiza_pagamento_fatura
+AFTER INSERT ON pagamento_fatura
+FOR EACH ROW
+BEGIN
+    DECLARE v_valor DECIMAL(10,2);
+
+    SELECT fatura_valor_total
+    INTO v_valor
+    FROM fatura
+    WHERE id_fatura = NEW.fk_id_fatura;
+
+    UPDATE conta
+    SET conta_saldo_atual = conta_saldo_atual - v_valor
+    WHERE id_conta = NEW.fk_id_conta;
+
+    UPDATE fatura
+    SET fk_id_status = (SELECT id_status_fatura FROM status_fatura WHERE status_fatura_nome='fechada')
+    WHERE id_fatura = NEW.fk_id_fatura;
+END$$
+
+-- -------------------------------------------------------
+-- 9. AFTER INSERT ON transacao
+-- A cada nova transação de despesa, encontra o orçamento correspondente do usuário para aquela categoria e período
+
+CREATE TRIGGER trg_atualiza_orcamento_usado
+AFTER INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_id_usuario INT;
+    DECLARE v_operacao_nome VARCHAR(20);
+
+    -- Primeiro, identifica o tipo de operação
+    SELECT operacao_nome INTO v_operacao_nome
+    FROM operacao WHERE id_operacao = NEW.fk_id_operacao;
+
+    -- IMPORTANTE! A trigger só deve rodar para despesas (saídas)
+    IF v_operacao_nome = 'conta_saida' OR v_operacao_nome = 'fatura_saida' THEN
+
+        -- Encontra o ID do usuário através da operação
+        SELECT COALESCE(c.fk_id_usuario, ca.fk_id_usuario) INTO v_id_usuario
+        FROM operacao AS op
+        LEFT JOIN conta AS c ON op.fk_id_conta = c.id_conta
+        LEFT JOIN fatura AS f ON op.fk_id_fatura = f.id_fatura
+        LEFT JOIN cartao AS ca ON f.fk_id_cartao = ca.id_cartao
+        WHERE op.id_operacao = NEW.fk_id_operacao;
+
+        -- Se encontrou um usuário, atualiza o orçamento correspondente
+        IF v_id_usuario IS NOT NULL THEN
+            UPDATE orcamento
+            SET orcamento_valor_usado = orcamento_valor_usado + NEW.transacao_valor
+            WHERE 
+                fk_id_usuario = v_id_usuario AND
+                fk_id_categoria = NEW.fk_id_categoria AND
+                NEW.transacao_data BETWEEN orcamento_periodo_inicio AND orcamento_periodo_fim;
+        END IF;
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+-- 10. AFTER UPDATE ON transacao
+-- Recalcula saldo da conta ou valor da fatura quando o valor da transação é alterado
+
+CREATE TRIGGER trg_alteracao_transacao_recalcular
+AFTER UPDATE ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_tipo ENUM('conta_entrada','conta_saida','fatura_saida');
+    DECLARE v_id_conta INT;
+    DECLARE v_id_fatura INT;
+
+    SELECT operacao_nome, fk_id_conta, fk_id_fatura
+    INTO v_tipo, v_id_conta, v_id_fatura
+    FROM operacao WHERE id_operacao = NEW.fk_id_operacao;
+
+    -- Ajusta saldo da conta
+    IF v_tipo = 'conta_entrada' THEN
+        UPDATE conta
+        SET conta_saldo_atual = conta_saldo_atual - OLD.transacao_valor + NEW.transacao_valor
+        WHERE id_conta = v_id_conta;
+    ELSEIF v_tipo = 'conta_saida' THEN
+        UPDATE conta
+        SET conta_saldo_atual = conta_saldo_atual + OLD.transacao_valor - NEW.transacao_valor
+        WHERE id_conta = v_id_conta;
+    END IF;
+
+    -- Ajusta valor da fatura
+    IF v_tipo = 'fatura_saida' THEN
+        UPDATE fatura
+        SET fatura_valor_total = fatura_valor_total - OLD.transacao_valor + NEW.transacao_valor
+        WHERE id_fatura = v_id_fatura;
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+-- 11. AFTER DELETE ON transacao
+-- Estorna saldo ou valor da fatura se a transação for removida
+
+CREATE TRIGGER trg_delete_transacao
+AFTER DELETE ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_tipo ENUM('conta_entrada','conta_saida','fatura_saida');
+    DECLARE v_id_conta INT;
+    DECLARE v_id_fatura INT;
+
+    SELECT operacao_nome, fk_id_conta, fk_id_fatura
+    INTO v_tipo, v_id_conta, v_id_fatura
+    FROM operacao WHERE id_operacao = OLD.fk_id_operacao;
+
+    -- Estorna saldo da conta
+    IF v_tipo = 'conta_entrada' THEN
+        UPDATE conta SET conta_saldo_atual = conta_saldo_atual - OLD.transacao_valor
+        WHERE id_conta = v_id_conta;
+    ELSEIF v_tipo = 'conta_saida' THEN
+        UPDATE conta SET conta_saldo_atual = conta_saldo_atual + OLD.transacao_valor
+        WHERE id_conta = v_id_conta;
+    END IF;
+
+    -- Estorna valor da fatura
+    IF v_tipo = 'fatura_saida' THEN
+        UPDATE fatura SET fatura_valor_total = fatura_valor_total - OLD.transacao_valor
+        WHERE id_fatura = v_id_fatura;
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+-- 12. AFTER DELETE ON pagamento_fatura
+-- Estorna o pagamento: devolve saldo e reabre fatura
+
+CREATE TRIGGER trg_delete_pagamento
+AFTER DELETE ON pagamento_fatura
+FOR EACH ROW
+BEGIN
+    DECLARE v_valor DECIMAL(12,2);
+
+    -- Pega o valor da fatura
+    SELECT fatura_valor_total INTO v_valor
+    FROM fatura WHERE id_fatura = OLD.fk_id_fatura;
+
+    -- Devolve saldo à conta
+    UPDATE conta
+    SET conta_saldo_atual = conta_saldo_atual + v_valor
+    WHERE id_conta = OLD.fk_id_conta;
+
+    -- Reabre a fatura
+    UPDATE fatura
+    SET fk_id_status = (SELECT id_status_fatura FROM status_fatura WHERE status_fatura_nome='aberta')
+    WHERE id_fatura = OLD.fk_id_fatura;
+END$$
+
+-- -------------------------------------------------------
+-- 13. BEFORE UPDATE ON orcamento
+-- Impede reduzir valor planejado abaixo do já usado
+
+CREATE TRIGGER trg_alteracao_orcamento
+BEFORE UPDATE ON orcamento
+FOR EACH ROW
+BEGIN
+    IF NEW.orcamento_valor_planejado < OLD.orcamento_valor_usado THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Novo valor planejado não pode ser menor que o já usado.';
+    END IF;
+END$$
+<span class="image-link" data-modal="modal-Trigger13"><img src="assets/images/file-code-fill.svg" alt="Impede reduzir valor planejado abaixo do já usado" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------
+
+DELIMITER ;
+
+-- -------------------------------------------------------</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Event</h3>
+            <p>
+                Eventos. <br>
+                <code>
+                    <pre>
+-- =======================================
+-- EVENTS
+-- =======================================
+-- Mapeamento
+--
+-- 1. Verificar e atualizar status da fatura diariamente por data
+--
+-- =======================================
+
+SET GLOBAL event_scheduler = ON;
+
+DELIMITER $$
+
+-- -------------------------------------------------------
+-- 1. Verificar e atualizar status da fatura diariamente por data
+
+CREATE EVENT evt_marcar_faturas_atrasadas
+ON SCHEDULE EVERY 1 DAY
+STARTS TIMESTAMP(CURRENT_DATE, '00:01:00') -- Roda todo dia, 1 minuto após a meia-noite
+COMMENT 'Atualiza diariamente o status de faturas abertas e vencidas para "atrasada".'
+DO
+BEGIN
+  UPDATE fatura
+  SET fk_id_status = (
+      SELECT id_status_fatura FROM status_fatura WHERE status_fatura_nome='atrasada'
+  )
+  WHERE fatura_data_fim < CURDATE()
+    AND fk_id_status = (SELECT id_status_fatura FROM status_fatura WHERE status_fatura_nome='aberta');
+END$$
+
+-- -------------------------------------------------------
+
+DELIMITER ;
+
+-- -------------------------------------------------------</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Views</h3>
+            <p>
+                Visualizações. <br>
+                <code>
+                    <pre>
+-- =======================================
+-- VIEWS
+-- =======================================
+-- Mapeamento
+--
+-- 1. Monta um extrato detalhado da conta, listando todas as transações ligadas a contas
+-- 2. Gera um resumo mensal de gastos por categoria e usuário
+-- 3. Compara orçamento planejado x realizado de cada categoria do usuário
+-- 4. Lista todas as faturas abertas ou atrasadas
+--
+-- =======================================
+
+-- -------------------------------------------------------
+-- 1. Monta um extrato detalhado da conta, listando todas as transações ligadas a contas
+
+CREATE OR REPLACE VIEW vw_extrato_conta AS
+SELECT c.id_conta, c.conta_numero, t.id_transacao, t.transacao_data,
+       t.transacao_valor, t.transacao_descricao, o.operacao_nome,
+       cat.categoria_nome,
+       CASE WHEN o.operacao_nome='conta_saida' THEN -t.transacao_valor
+            WHEN o.operacao_nome='conta_entrada' THEN t.transacao_valor
+            ELSE 0 END AS impacto_saldo
+FROM transacao t
+JOIN operacao o ON t.fk_id_operacao = o.id_operacao
+LEFT JOIN conta c ON o.fk_id_conta = c.id_conta
+LEFT JOIN categoria cat ON t.fk_id_categoria = cat.id_categoria;
+<span class="image-link" data-modal="modal-View1"><img src="assets/images/file-code-fill.svg" alt="Monta um extrato detalhado da conta, listando todas as transações ligadas a contas" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------
+-- 2. Gera um resumo mensal de gastos por categoria e usuário
+
+CREATE OR REPLACE VIEW vw_resumo_mensal_categoria AS
+SELECT u.id_usuario, cat.id_categoria, cat.categoria_nome,
+       YEAR(t.transacao_data) AS ano, MONTH(t.transacao_data) AS mes,
+       SUM(t.transacao_valor) AS total_categoria
+FROM transacao t
+JOIN categoria cat ON t.fk_id_categoria = cat.id_categoria
+JOIN operacao o ON t.fk_id_operacao = o.id_operacao
+LEFT JOIN conta c ON o.fk_id_conta = c.id_conta
+LEFT JOIN usuario u ON c.fk_id_usuario = u.id_usuario
+GROUP BY u.id_usuario, cat.id_categoria, ano, mes;
+<span class="image-link" data-modal="modal-View2"><img src="assets/images/file-code-fill.svg" alt="Gera um resumo mensal de gastos por categoria e usuário" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------
+-- 3. Compara orçamento planejado x realizado de cada categoria do usuário
+
+CREATE OR REPLACE VIEW vw_orcamento_vs_realizado AS
+SELECT o.id_orcamento, u.id_usuario, cat.categoria_nome,
+       o.orcamento_periodo_inicio, o.orcamento_periodo_fim,
+       o.orcamento_valor_planejado, o.orcamento_valor_usado,
+       ROUND((o.orcamento_valor_usado / o.orcamento_valor_planejado) * 100, 2) AS percentual_utilizado
+FROM orcamento o
+JOIN usuario u ON o.fk_id_usuario = u.id_usuario
+JOIN categoria cat ON o.fk_id_categoria = cat.id_categoria;
+<span class="image-link" data-modal="modal-View3"><img src="assets/images/file-code-fill.svg" alt="Compara orçamento planejado x realizado de cada categoria do usuário" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------
+-- 4. Lista todas as faturas abertas ou atrasadas
+
+CREATE OR REPLACE VIEW vw_faturas_em_aberto AS
+SELECT f.id_fatura, u.id_usuario, c.cartao_numero,
+       f.fatura_data_inicio, f.fatura_data_fim,
+       f.fatura_valor_total, s.status_fatura_nome
+FROM fatura f
+JOIN cartao c ON f.fk_id_cartao = c.id_cartao
+JOIN usuario u ON c.fk_id_usuario = u.id_usuario
+JOIN status_fatura s ON f.fk_id_status = s.id_status_fatura
+WHERE s.status_fatura_nome IN ('aberta','atrasada');
+<span class="image-link" data-modal="modal-View4"><img src="assets/images/file-code-fill.svg" alt="Lista todas as faturas abertas ou atrasadas" width="14" /> Visualizar</span>
+
+-- -------------------------------------------------------</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Functions</h3>
+            <p>
+                Funções. <br>
+                <code>
+                    <pre>
+-- =======================================
+-- FUNCTIONS
+-- =======================================
+-- Mapeamento
+--
+-- 1. Retorna o saldo total de todas as contas de um usuário
+-- 2. Retorna o % de utilização de um orçamento
+-- 3. Retorna se a conta tem saldo suficiente para um débito
+--
+-- =======================================
+
+DELIMITER $$
+
+-- -------------------------------------------------------
+-- 1. Retorna o saldo total de todas as contas de um usuário
+CREATE FUNCTION fn_saldo_usuario(p_usuario INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE v_saldo DECIMAL(10,2);
+    SELECT SUM(conta_saldo_atual) INTO v_saldo
+    FROM conta WHERE fk_id_usuario = p_usuario;
+    RETURN IFNULL(v_saldo,0.00);
+END$$
+
+-- -------------------------------------------------------
+-- 2. Retorna o % de utilização de um orçamento
+CREATE FUNCTION fn_percentual_orcamento(p_id_orcamento INT)
+RETURNS DECIMAL(5,2)
+DETERMINISTIC
+BEGIN
+    DECLARE v_planejado DECIMAL(10,2);
+    DECLARE v_usado DECIMAL(10,2);
+    SELECT orcamento_valor_planejado, orcamento_valor_usado
+    INTO v_planejado, v_usado FROM orcamento WHERE id_orcamento = p_id_orcamento;
+    RETURN IFNULL((v_usado/v_planejado)*100,0);
+END$$
+
+-- -------------------------------------------------------
+-- 3. Retorna se a conta tem saldo suficiente para um débito
+
+CREATE FUNCTION fn_verifica_saldo_suficiente(p_id_conta INT, p_valor_debito DECIMAL(10,2))
+RETURNS BOOLEAN
+READS SQL DATA
+BEGIN
+    DECLARE v_saldo_atual DECIMAL(10,2);
+
+    -- Pega o saldo atual da conta informada
+    SELECT conta_saldo_atual INTO v_saldo_atual 
+    FROM conta WHERE id_conta = p_id_conta;
+
+    -- Retorna TRUE (1) se o saldo for suficiente, FALSE (0) caso contrário
+    IF v_saldo_atual >= p_valor_debito THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+
+DELIMITER ;
+
+-- -------------------------------------------------------</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Stored Procedures</h3>
+            <p>
+                Stored Procedures. <br>
+                <code>
+                    <pre>
+-- =======================================
+-- STORED PROCEDURES
+-- =======================================
+-- Mapeamento
+--
+-- 1. Fecha uma fatura aberta, senão retorna erro
+-- 2. Gera relatório do usuário
+--
+-- =======================================
+
+DELIMITER $$
+
+-- -------------------------------------------------------
+-- 1. Fecha uma fatura aberta, senão retorna erro
+CREATE PROCEDURE sp_fechar_fatura(IN p_id_fatura INT)
+BEGIN
+    DECLARE v_status_aberta INT;
+    DECLARE v_status_fechada INT;
+    SELECT id_status_fatura INTO v_status_aberta FROM status_fatura WHERE status_fatura_nome='aberta';
+    SELECT id_status_fatura INTO v_status_fechada FROM status_fatura WHERE status_fatura_nome='fechada';
+    IF (SELECT fk_id_status FROM fatura WHERE id_fatura=p_id_fatura)=v_status_aberta THEN
+        UPDATE fatura SET fk_id_status=v_status_fechada WHERE id_fatura=p_id_fatura;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Fatura não está aberta';
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+-- 2. Gera relatório do usuário
+CREATE PROCEDURE sp_relatorio_usuario(IN p_id_usuario INT, IN p_data_inicio DATE, IN p_data_fim DATE)
+BEGIN
+    -- saldo total
+    SELECT fn_saldo_usuario(p_id_usuario) AS saldo_total;
+
+    -- resumo categorias
+    SELECT cat.categoria_nome, SUM(t.transacao_valor) AS total_categoria
+    FROM transacao t
+    JOIN categoria cat ON t.fk_id_categoria=cat.id_categoria
+    JOIN operacao o ON t.fk_id_operacao=o.id_operacao
+    LEFT JOIN conta c ON o.fk_id_conta=c.id_conta
+    WHERE c.fk_id_usuario=p_id_usuario AND t.transacao_data BETWEEN p_data_inicio AND p_data_fim
+    GROUP BY cat.categoria_nome;
+
+    -- faturas
+    SELECT f.id_fatura, f.fatura_data_inicio, f.fatura_data_fim, f.fatura_valor_total, s.status_fatura_nome
+    FROM fatura f
+    JOIN cartao ca ON f.fk_id_cartao=ca.id_cartao
+    JOIN status_fatura s ON f.fk_id_status=s.id_status_fatura
+    WHERE ca.fk_id_usuario=p_id_usuario AND s.status_fatura_nome IN ('aberta','atrasada');
+END$$
+
+-- -------------------------------------------------------
+
+DELIMITER ;
+
+-- -------------------------------------------------------</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Dados</h3>
+            <p>
+                Inserindo os dados no banco de dados. <br>
+                <code>
+                    <pre>
+-- ========================================
+-- Usuários (5 Inserções)
+-- ========================================
+INSERT INTO usuario (usuario_nome, usuario_email, usuario_senha, usuario_data_cadastro) VALUES
+('Alice Silva', 'alice@email.com', '123', '2025-01-05'), -- ID 1
+('Bruno Costa', 'bruno@email.com', '321', '2025-01-10'), -- ID 2 
+('Carla Souza', 'carla@email.com', '124', '2025-01-12'), -- ID 3
+('Diego Martins', 'diego@email.com', '223', '2025-01-15'), -- ID 4
+('Eduarda Lima', 'eduarda@email.com', '143', '2025-01-20'); -- ID 5
+<span class="image-link" data-modal="modal-Usuario"><img src="assets/images/file-code-fill.svg" alt="Usuário" width="14" /> Visualizar</span>
+-- ========================================
+-- Categorias (10 Inserções)
+-- ========================================
+INSERT INTO categoria (categoria_nome,fk_id_categoria) VALUES
+('Salário',NULL), -- ID 1
+('Alimentação',NULL), -- ID 2
+('Transporte',NULL), -- ID 3
+('Lazer',NULL), -- ID 4
+('Restaurante',2), -- ID 5
+('IFood',2), -- ID 6
+('Mercado',2), -- ID 7
+('Uber',3), -- ID 8
+('Cinema',4), -- ID 9
+('Shopping',4); -- ID 10
+<span class="image-link" data-modal="modal-Categoria"><img src="assets/images/file-code-fill.svg" alt="Categoria" width="14" /> Visualizar</span>
+
+-- ========================================
+-- Contas (5 Inserções - 1 para cada usuário)
+-- ========================================
+INSERT INTO conta (conta_numero, conta_tipo, conta_saldo_atual, conta_banco, fk_id_usuario) VALUES
+('1111-1', 'corrente', 5000.00, 'Banco A', 1), -- Alice
+('2222-2', 'corrente', 3000.00, 'Banco B', 2), -- Bruno
+('3333-3', 'poupanca', 8000.00, 'Banco C', 3), -- Carla
+('4444-4', 'corrente', 4500.00, 'Banco D', 4), -- Diego
+('5555-5', 'corrente', 2500.00, 'Banco E', 5); -- Eduarda
+<span class="image-link" data-modal="modal-Conta"><img src="assets/images/file-code-fill.svg" alt="Conta" width="14" /> Visualizar</span>
+
+-- ========================================
+-- Cartões (5 Inserções - 1 para cada usuário)
+-- ========================================
+INSERT INTO cartao (cartao_numero, cartao_validade, cartao_limite_credito, fk_id_usuario) VALUES
+('1111 2222 3333 4444', '2028-12-01', 8000.00, 1),  -- Alice
+('5555 6666 7777 8888', '2027-11-01', 6000.00, 2),  -- Bruno
+('9999 0000 1111 2222', '2026-10-01', 7000.00, 3),  -- Carla
+('3333 4444 5555 6666', '2029-09-01', 6500.00, 4),  -- Diego
+('7777 8888 9999 0000', '2028-08-01', 7500.00, 5);  -- Eduarda
+<span class="image-link" data-modal="modal-Cartao"><img src="assets/images/file-code-fill.svg" alt="Cartão" width="14" /> Visualizar</span>
+
+-- ========================================
+-- Status de Fatura
+-- ========================================
+INSERT INTO status_fatura (status_fatura_nome) VALUES
+('aberta'),
+('fechada'),
+('atrasada');
+<span class="image-link" data-modal="modal-StatusFatura"><img src="assets/images/file-code-fill.svg" alt="Status da Fatura" width="14" /> Visualizar</span>
+
+-- ========================================
+-- Faturas (15 inserções. 3 faturas (1 aberta, 1 fechada, 1 atrasada) por usuario)
+-- ========================================
+INSERT INTO fatura (fatura_data_inicio, fatura_data_fim, fatura_valor_total, fk_id_cartao, fk_id_status) VALUES
+
+('2025-07-01', '2025-07-31', 2000, 1, 2), -- fatura paga Alice
+('2025-08-01', '2025-08-31', 1000, 1, 3), -- fatura atrasada Alice
+('2025-09-01', '2025-09-30', 500, 1, 1), -- fatura aberta Alice
+
+('2025-07-01', '2025-07-31', 1500, 2, 2), -- fatura paga Bruno
+('2025-08-01', '2025-08-31', 800, 2, 3),  -- fatura atrasada Bruno
+('2025-09-01', '2025-09-30', 600, 2, 1),  -- fatura aberta Bruno
+
+('2025-07-01', '2025-07-31', 1800, 3, 2), -- fatura paga Carla
+('2025-08-01', '2025-08-31', 1200, 3, 3), -- fatura atrasada Carla
+('2025-09-01', '2025-09-30', 700, 3, 1),  -- fatura aberta Carla
+
+('2025-07-01', '2025-07-31', 1600, 4, 2), -- fatura paga Diego
+('2025-08-01', '2025-08-31', 900, 4, 3),  -- fatura atrasada Diego
+('2025-09-01', '2025-09-30', 400, 4, 1),  -- fatura aberta Diego
+
+('2025-07-01', '2025-07-31', 1400, 5, 2), -- fatura paga Eduarda
+('2025-08-01', '2025-08-31', 1000, 5, 3), -- fatura atrasada Eduarda
+('2025-09-01', '2025-09-30', 550, 5, 1);  -- fatura aberta Eduarda
+-- Ajuste inicial nas faturas inseridas anteriormente para garantir consistência com os triggers.
+-- Definimos todas como abertas (status 1) e valor_total 0, pois os valores serão populados pelas transações.
+-- Após as transações, processamos pagamentos para as de julho (fechando-as) e atualizamos as de agosto para atrasadas.
+UPDATE fatura SET fatura_valor_total = 0, fk_id_status = 1 WHERE id_fatura > 0;
+<span class="image-link" data-modal="modal-Fatura"><img src="assets/images/file-code-fill.svg" alt="Fatura" width="14" /> Visualizar</span>
+
+-- ========================================
+-- Orçamentos (30 Inserções - 6 por usuário, um para cada subcategoria principal, período de setembro)
+-- ========================================
+-- Orçamentos para Alice (ID 1) - Focados em subcategorias para demonstrar atualização via trigger em transações de setembro
+INSERT INTO orcamento (orcamento_descricao, orcamento_periodo_inicio, orcamento_periodo_fim, orcamento_valor_planejado, orcamento_valor_usado, fk_id_usuario, fk_id_categoria) VALUES
+('Orçamento Restaurante Setembro', '2025-09-01', '2025-09-30', 300.00, 0.00, 1, 5),
+('Orçamento IFood Setembro', '2025-09-01', '2025-09-30', 200.00, 0.00, 1, 6),
+('Orçamento Mercado Setembro', '2025-09-01', '2025-09-30', 500.00, 0.00, 1, 7),
+('Orçamento Uber Setembro', '2025-09-01', '2025-09-30', 400.00, 0.00, 1, 8),
+('Orçamento Cinema Setembro', '2025-09-01', '2025-09-30', 300.00, 0.00, 1, 9),
+('Orçamento Shopping Setembro', '2025-09-01', '2025-09-30', 400.00, 0.00, 1, 10);
+
+-- Orçamentos para Bruno (ID 2) - Valores ligeiramente variados para diversidade
+INSERT INTO orcamento (orcamento_descricao, orcamento_periodo_inicio, orcamento_periodo_fim, orcamento_valor_planejado, orcamento_valor_usado, fk_id_usuario, fk_id_categoria) VALUES
+('Orçamento Restaurante Setembro', '2025-09-01', '2025-09-30', 250.00, 0.00, 2, 5),
+('Orçamento IFood Setembro', '2025-09-01', '2025-09-30', 150.00, 0.00, 2, 6),
+('Orçamento Mercado Setembro', '2025-09-01', '2025-09-30', 400.00, 0.00, 2, 7),
+('Orçamento Uber Setembro', '2025-09-01', '2025-09-30', 300.00, 0.00, 2, 8),
+('Orçamento Cinema Setembro', '2025-09-01', '2025-09-30', 250.00, 0.00, 2, 9),
+('Orçamento Shopping Setembro', '2025-09-01', '2025-09-30', 300.00, 0.00, 2, 10);
+
+-- Orçamentos para Carla (ID 3) - Valores mais altos para demonstrar variação
+INSERT INTO orcamento (orcamento_descricao, orcamento_periodo_inicio, orcamento_periodo_fim, orcamento_valor_planejado, orcamento_valor_usado, fk_id_usuario, fk_id_categoria) VALUES
+('Orçamento Restaurante Setembro', '2025-09-01', '2025-09-30', 350.00, 0.00, 3, 5),
+('Orçamento IFood Setembro', '2025-09-01', '2025-09-30', 250.00, 0.00, 3, 6),
+('Orçamento Mercado Setembro', '2025-09-01', '2025-09-30', 600.00, 0.00, 3, 7),
+('Orçamento Uber Setembro', '2025-09-01', '2025-09-30', 500.00, 0.00, 3, 8),
+('Orçamento Cinema Setembro', '2025-09-01', '2025-09-30', 400.00, 0.00, 3, 9),
+('Orçamento Shopping Setembro', '2025-09-01', '2025-09-30', 500.00, 0.00, 3, 10);
+
+-- Orçamentos para Diego (ID 4)
+INSERT INTO orcamento (orcamento_descricao, orcamento_periodo_inicio, orcamento_periodo_fim, orcamento_valor_planejado, orcamento_valor_usado, fk_id_usuario, fk_id_categoria) VALUES
+('Orçamento Restaurante Setembro', '2025-09-01', '2025-09-30', 280.00, 0.00, 4, 5),
+('Orçamento IFood Setembro', '2025-09-01', '2025-09-30', 180.00, 0.00, 4, 6),
+('Orçamento Mercado Setembro', '2025-09-01', '2025-09-30', 450.00, 0.00, 4, 7),
+('Orçamento Uber Setembro', '2025-09-01', '2025-09-30', 350.00, 0.00, 4, 8),
+('Orçamento Cinema Setembro', '2025-09-01', '2025-09-30', 280.00, 0.00, 4, 9),
+('Orçamento Shopping Setembro', '2025-09-01', '2025-09-30', 350.00, 0.00, 4, 10);
+
+-- Orçamentos para Eduarda (ID 5)
+INSERT INTO orcamento (orcamento_descricao, orcamento_periodo_inicio, orcamento_periodo_fim, orcamento_valor_planejado, orcamento_valor_usado, fk_id_usuario, fk_id_categoria) VALUES
+('Orçamento Restaurante Setembro', '2025-09-01', '2025-09-30', 320.00, 0.00, 5, 5),
+('Orçamento IFood Setembro', '2025-09-01', '2025-09-30', 220.00, 0.00, 5, 6),
+('Orçamento Mercado Setembro', '2025-09-01', '2025-09-30', 550.00, 0.00, 5, 7),
+('Orçamento Uber Setembro', '2025-09-01', '2025-09-30', 450.00, 0.00, 5, 8),
+('Orçamento Cinema Setembro', '2025-09-01', '2025-09-30', 350.00, 0.00, 5, 9),
+('Orçamento Shopping Setembro', '2025-09-01', '2025-09-30', 450.00, 0.00, 5, 10);
+<span class="image-link" data-modal="modal-Orcamento"><img src="assets/images/file-code-fill.svg" alt="Orçamento" width="14" /> Visualizar</span>
+
+-- ========================================
+-- Operações (25 Inserções: 2 por conta (entrada/saída) + 1 por fatura (saída))
+-- ========================================
+-- Operações de entrada em conta (1 por usuário)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('conta_entrada', 1, NULL); -- ID esperado: 1 (Alice)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('conta_entrada', 2, NULL); -- ID 2 (Bruno)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('conta_entrada', 3, NULL); -- ID 3 (Carla)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('conta_entrada', 4, NULL); -- ID 4 (Diego)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('conta_entrada', 5, NULL); -- ID 5 (Eduarda)
+
+-- Operações de saída em conta (1 por usuário)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('conta_saida', 1, NULL); -- ID 6 (Alice)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('conta_saida', 2, NULL); -- ID 7 (Bruno)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('conta_saida', 3, NULL); -- ID 8 (Carla)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('conta_saida', 4, NULL); -- ID 9 (Diego)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('conta_saida', 5, NULL); -- ID 10 (Eduarda)
+
+-- Operações de saída em fatura (1 por fatura)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 1); -- ID 11 (Alice Julho)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 2); -- ID 12 (Alice Agosto)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 3); -- ID 13 (Alice Setembro)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 4); -- ID 14 (Bruno Julho)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 5); -- ID 15 (Bruno Agosto)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 6); -- ID 16 (Bruno Setembro)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 7); -- ID 17 (Carla Julho)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 8); -- ID 18 (Carla Agosto)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 9); -- ID 19 (Carla Setembro)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 10); -- ID 20 (Diego Julho)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 11); -- ID 21 (Diego Agosto)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 12); -- ID 22 (Diego Setembro)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 13); -- ID 23 (Eduarda Julho)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 14); -- ID 24 (Eduarda Agosto)
+INSERT INTO operacao (operacao_nome, fk_id_conta, fk_id_fatura) VALUES ('fatura_saida', NULL, 15); -- ID 25 (Eduarda Setembro)
+<span class="image-link" data-modal="modal-Operacao"><img src="assets/images/file-code-fill.svg" alt="Operação" width="14" /> Visualizar</span>
+
+-- ========================================
+-- Transações (Múltiplas por operação - Total: ~100 inserções)
+-- Somatórios respeitam os valores originais das faturas e limites dos cartões.
+-- Distribuição em subcategorias para atualizar orçamentos de setembro via trigger.
+-- Datas dentro dos períodos das faturas/contas. Despesas em setembro atualizam views de orçamento/resumo.
+-- ========================================
+-- Transações de entrada em conta (1 por usuário, salário em setembro - Atualiza saldo via trigger)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(3000.00, '2025-09-01', 'Salário Setembro', 1, 1), -- Alice (entrada, oper 1)
+(2500.00, '2025-09-01', 'Salário Setembro', 1, 2), -- Bruno
+(4000.00, '2025-09-01', 'Salário Setembro', 1, 3), -- Carla
+(2800.00, '2025-09-01', 'Salário Setembro', 1, 4), -- Diego
+(3200.00, '2025-09-01', 'Salário Setembro', 1, 5); -- Eduarda
+
+-- Transações de saída em conta (3-4 por usuário, em setembro - Atualiza saldo/orçamento via triggers)
+-- Alice (saídas, oper 6)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(200.00, '2025-09-05', 'Compra Mercado', 7, 6),
+(100.00, '2025-09-10', 'Corrida Uber', 8, 6),
+(150.00, '2025-09-15', 'Ingresso Cinema', 9, 6),
+(120.00, '2025-09-20', 'Pedido IFood', 6, 6);
+
+-- Bruno (saídas, oper 7)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(150.00, '2025-09-05', 'Compra Mercado', 7, 7),
+(80.00, '2025-09-10', 'Corrida Uber', 8, 7),
+(120.00, '2025-09-15', 'Ingresso Cinema', 9, 7),
+(100.00, '2025-09-20', 'Almoço Restaurante', 5, 7);
+
+-- Carla (saídas, oper 8)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(250.00, '2025-09-05', 'Compra Mercado', 7, 8),
+(150.00, '2025-09-10', 'Corrida Uber', 8, 8),
+(200.00, '2025-09-15', 'Ingresso Cinema', 9, 8),
+(180.00, '2025-09-20', 'Compra Shopping', 10, 8);
+
+-- Diego (saídas, oper 9)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(180.00, '2025-09-05', 'Compra Mercado', 7, 9),
+(100.00, '2025-09-10', 'Corrida Uber', 8, 9),
+(140.00, '2025-09-15', 'Ingresso Cinema', 9, 9),
+(130.00, '2025-09-20', 'Pedido IFood', 6, 9);
+
+-- Eduarda (saídas, oper 10)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(220.00, '2025-09-05', 'Compra Mercado', 7, 10),
+(120.00, '2025-09-10', 'Corrida Uber', 8, 10),
+(160.00, '2025-09-15', 'Ingresso Cinema', 9, 10),
+(140.00, '2025-09-20', 'Almoço Restaurante', 5, 10);
+
+-- Transações de saída em fatura (4-5 por fatura, somando aos valores originais - Atualiza fatura_valor_total/orçamento via triggers)
+-- Alice Julho (fatura 1, oper 11, soma 2000 - Dentro do limite 8000)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(400.00, '2025-07-05', 'Almoço Restaurante', 5, 11),
+(300.00, '2025-07-10', 'Pedido IFood', 6, 11),
+(500.00, '2025-07-15', 'Compra Mercado', 7, 11),
+(400.00, '2025-07-20', 'Corrida Uber', 8, 11),
+(400.00, '2025-07-25', 'Compra Shopping', 10, 11);
+
+-- Alice Agosto (fatura 2, oper 12, soma 1000)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(200.00, '2025-08-05', 'Almoço Restaurante', 5, 12),
+(200.00, '2025-08-10', 'Pedido IFood', 6, 12),
+(300.00, '2025-08-15', 'Compra Mercado', 7, 12),
+(150.00, '2025-08-20', 'Corrida Uber', 8, 12),
+(150.00, '2025-08-25', 'Ingresso Cinema', 9, 12);
+
+-- Alice Setembro (fatura 3, oper 13, soma 500 - Atualiza orçamentos)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(100.00, '2025-09-05', 'Almoço Restaurante', 5, 13),
+(100.00, '2025-09-10', 'Pedido IFood', 6, 13),
+(150.00, '2025-09-15', 'Compra Mercado', 7, 13),
+(100.00, '2025-09-20', 'Corrida Uber', 8, 13),
+(50.00, '2025-09-25', 'Ingresso Cinema', 9, 13);
+
+-- Bruno Julho (fatura 4, oper 14, soma 1500 - Dentro do limite 6000)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(300.00, '2025-07-05', 'Almoço Restaurante', 5, 14),
+(250.00, '2025-07-10', 'Pedido IFood', 6, 14),
+(400.00, '2025-07-15', 'Compra Mercado', 7, 14),
+(300.00, '2025-07-20', 'Corrida Uber', 8, 14),
+(250.00, '2025-07-25', 'Compra Shopping', 10, 14);
+
+-- Bruno Agosto (fatura 5, oper 15, soma 800)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(150.00, '2025-08-05', 'Almoço Restaurante', 5, 15),
+(150.00, '2025-08-10', 'Pedido IFood', 6, 15),
+(200.00, '2025-08-15', 'Compra Mercado', 7, 15),
+(150.00, '2025-08-20', 'Corrida Uber', 8, 15),
+(150.00, '2025-08-25', 'Ingresso Cinema', 9, 15);
+
+-- Bruno Setembro (fatura 6, oper 16, soma 600)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(120.00, '2025-09-05', 'Almoço Restaurante', 5, 16),
+(100.00, '2025-09-10', 'Pedido IFood', 6, 16),
+(150.00, '2025-09-15', 'Compra Mercado', 7, 16),
+(120.00, '2025-09-20', 'Corrida Uber', 8, 16),
+(110.00, '2025-09-25', 'Ingresso Cinema', 9, 16);
+
+-- Carla Julho (fatura 7, oper 17, soma 1800 - Dentro do limite 7000)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(350.00, '2025-07-05', 'Almoço Restaurante', 5, 17),
+(300.00, '2025-07-10', 'Pedido IFood', 6, 17),
+(500.00, '2025-07-15', 'Compra Mercado', 7, 17),
+(350.00, '2025-07-20', 'Corrida Uber', 8, 17),
+(300.00, '2025-07-25', 'Compra Shopping', 10, 17);
+
+-- Carla Agosto (fatura 8, oper 18, soma 1200)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(250.00, '2025-08-05', 'Almoço Restaurante', 5, 18),
+(200.00, '2025-08-10', 'Pedido IFood', 6, 18),
+(300.00, '2025-08-15', 'Compra Mercado', 7, 18),
+(250.00, '2025-08-20', 'Corrida Uber', 8, 18),
+(200.00, '2025-08-25', 'Ingresso Cinema', 9, 18);
+
+-- Carla Setembro (fatura 9, oper 19, soma 700)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(150.00, '2025-09-05', 'Almoço Restaurante', 5, 19),
+(120.00, '2025-09-10', 'Pedido IFood', 6, 19),
+(200.00, '2025-09-15', 'Compra Mercado', 7, 19),
+(130.00, '2025-09-20', 'Corrida Uber', 8, 19),
+(100.00, '2025-09-25', 'Compra Shopping', 10, 19);
+
+-- Diego Julho (fatura 10, oper 20, soma 1600 - Dentro do limite 6500)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(300.00, '2025-07-05', 'Almoço Restaurante', 5, 20),
+(250.00, '2025-07-10', 'Pedido IFood', 6, 20),
+(450.00, '2025-07-15', 'Compra Mercado', 7, 20),
+(300.00, '2025-07-20', 'Corrida Uber', 8, 20),
+(300.00, '2025-07-25', 'Ingresso Cinema', 9, 20);
+
+-- Diego Agosto (fatura 11, oper 21, soma 900)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(200.00, '2025-08-05', 'Almoço Restaurante', 5, 21),
+(150.00, '2025-08-10', 'Pedido IFood', 6, 21),
+(250.00, '2025-08-15', 'Compra Mercado', 7, 21),
+(150.00, '2025-08-20', 'Corrida Uber', 8, 21),
+(150.00, '2025-08-25', 'Compra Shopping', 10, 21);
+
+-- Diego Setembro (fatura 12, oper 22, soma 400)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(80.00, '2025-09-05', 'Almoço Restaurante', 5, 22),
+(70.00, '2025-09-10', 'Pedido IFood', 6, 22),
+(100.00, '2025-09-15', 'Compra Mercado', 7, 22),
+(80.00, '2025-09-20', 'Corrida Uber', 8, 22),
+(70.00, '2025-09-25', 'Ingresso Cinema', 9, 22);
+
+-- Eduarda Julho (fatura 13, oper 23, soma 1400 - Dentro do limite 7500)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(250.00, '2025-07-05', 'Almoço Restaurante', 5, 23),
+(200.00, '2025-07-10', 'Pedido IFood', 6, 23),
+(400.00, '2025-07-15', 'Compra Mercado', 7, 23),
+(300.00, '2025-07-20', 'Corrida Uber', 8, 23),
+(250.00, '2025-07-25', 'Compra Shopping', 10, 23);
+
+-- Eduarda Agosto (fatura 14, oper 24, soma 1000)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(200.00, '2025-08-05', 'Almoço Restaurante', 5, 24),
+(150.00, '2025-08-10', 'Pedido IFood', 6, 24),
+(300.00, '2025-08-15', 'Compra Mercado', 7, 24),
+(200.00, '2025-08-20', 'Corrida Uber', 8, 24),
+(150.00, '2025-08-25', 'Ingresso Cinema', 9, 24);
+
+-- Eduarda Setembro (fatura 15, oper 25, soma 550)
+INSERT INTO transacao (transacao_valor, transacao_data, transacao_descricao, fk_id_categoria, fk_id_operacao) VALUES
+(110.00, '2025-09-05', 'Almoço Restaurante', 5, 25),
+(100.00, '2025-09-10', 'Pedido IFood', 6, 25),
+(150.00, '2025-09-15', 'Compra Mercado', 7, 25),
+(110.00, '2025-09-20', 'Corrida Uber', 8, 25),
+(80.00, '2025-09-25', 'Compra Shopping', 10, 25);
+<span class="image-link" data-modal="modal-Transacao"><img src="assets/images/file-code-fill.svg" alt="Transação" width="14" /> Visualizar</span>
+
+-- ========================================
+-- Pagamentos de Fatura (5 Inserções - Um para cada fatura de julho, fechando-as via trigger)
+-- ========================================
+INSERT INTO pagamento_fatura (pagamento_fatura_data, fk_id_conta, fk_id_fatura) VALUES
+('2025-08-05', 1, 1), -- Alice paga julho (debita 2000 do saldo, fecha fatura)
+('2025-08-05', 2, 4), -- Bruno paga julho (debita 1500)
+('2025-08-05', 3, 7), -- Carla paga julho (debita 1800)
+('2025-08-05', 4, 10), -- Diego paga julho (debita 1600)
+('2025-08-05', 5, 13); -- Eduarda paga julho (debita 1400)
+<span class="image-link" data-modal="modal-PagamentoFatura"><img src="assets/images/file-code-fill.svg" alt="Pagamento de Fatura" width="14" /> Visualizar</span>
+
+-- ========================================
+-- Atualização final de status para faturas de agosto (simulando o EVENT de atraso)
+-- ========================================
+UPDATE fatura SET fk_id_status = 3 WHERE id_fatura IN (2, 5, 8, 11, 14); -- Marca como atrasadas (agosto)
+</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Teste</h3>
+            <p>
+                Testes de error. <br>
+                <code>
+                    <pre>
+-- ---------------
+-- TESTE DE ERROS
+-- ---------------
+ 
+-- Passo 1: Criar uma fatura de teste para o usuário 3 (Edemar), cartão 5.
+INSERT INTO fatura (fatura_data_inicio, fatura_data_fim, fatura_valor_total, fk_id_cartao, fk_id_status)
+VALUES ('2025-09-01', '2025-09-30', 1000.00, 5, 1); -- fatura de R$1000, status 'aberta'
+ 
+SET @id_fatura_cara = LAST_INSERT_ID();
+ 
+-- Passo 2: Tentar pagar esta fatura usando a conta 6 (saldo de R$350.00)
+-- Esta linha DEVE FALHAR por causa da trigger 'trg_valida_saldo_pagamento_fatura'
+INSERT INTO pagamento_fatura (pagamento_fatura_data, fk_id_conta, fk_id_fatura)
+VALUES (CURDATE(), 6, @id_fatura_cara);
+ 
+-- **************
+ 
+-- Passo 1: Criar uma operação válida para podermos tentar a inserção na transação.
+-- Vamos simular uma entrada na conta de ID 1.
+INSERT INTO operacao (operacao_nome, fk_id_conta) VALUES ('conta_entrada', 1);
+SET @id_op_teste = LAST_INSERT_ID();
+ 
+-- Passo 2: Tentar inserir a transação com valor negativo.
+-- Esta linha DEVE FALHAR por causa da CHECK constraint 'chk_transacao_valor_positivo'.
+INSERT INTO transacao (
+    transacao_valor, 
+    transacao_data, 
+    transacao_descricao, 
+    fk_id_categoria, 
+    fk_id_operacao
+) 
+VALUES (
+    -150.75, -- << O valor inválido
+    CURDATE(), 
+    'Teste de inserção com valor negativo', 
+    8, -- Categoria 'Salário'
+    @id_op_teste
+);</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Apresentação</h3>
+            <p>
+                Observações. <br>
+                <code>
+                    <pre>
+Tópico 1: A Primeira Camada de Defesa: CONSTRAINTS (Regras Estruturais)
+ 
+Objetivo: A própria estrutura das tabelas impede a entrada de dados inválidos, sem precisar de lógica complexa.
+Pontos a destacar:
+CHECK para Valores Válidos: A regra mais fundamental.
+Exemplo 1: chk_transacao_valor_positivo na tabela transacao. Uma transação NUNCA pode ter um valor negativo. O sinal (débito/crédito) é definido pela operacao.
+Exemplo 2: chk_limite_credito_positivo na tabela cartao. Um limite de crédito não pode ser negativo.
+CHECK para Coerência Lógica:
+Exemplo: chk_operacao_target na tabela operacao. Forçar uma operação a ter OU um fk_id_conta OU um fk_id_fatura, mas nunca ambos e nunca nenhum. Impede a criação de "transações órfãs".
+UNIQUE para Evitar Duplicidade:
+Exemplo: usuario_email na tabela usuario. Não podemos ter dois usuários com o mesmo e-mail.
+ 
+Tópico 2: A Segunda Camada de Defesa: TRIGGERS (Regras de Negócio Inteligentes)
+ 
+Objetivo: Implementar regras que dependem de outros dados no banco, algo que as CONSTRAINTS não conseguem fazer sozinhas.
+Pontos a destacar:
+Conceito de BEFORE vs. AFTER:
+BEFORE INSERT: Usado para validar e potencialmente cancelar uma operação.
+AFTER INSERT: Usado para atualizar outros dados em consequência de uma nova inserção.
+Exemplo de Validação (BEFORE):
+trg_check_limite_cartao: A regra de negócio "o total de gastos na fatura não pode ultrapassar o limite do cartão". A trigger precisa consultar o limite na tabela cartao e o total na tabela fatura antes de permitir a nova transacao.
+trg_valida_saldo_debito_conta: A regra "o usuário não pode gastar mais do que tem na conta".
+Exemplo de Atualização (AFTER):
+trg_transacao_update: A regra "sempre que uma transação for inserida, o saldo da conta ou o valor total da fatura deve ser atualizado automaticamente". Isso garante que os dados estejam sempre consistentes.
+ 
+Tópico 3: Reutilização e Organização da Lógica (Functions e Procedures)
+ 
+Objetivo: Boas práticas de programação dentro do banco de dados para não repetir código.
+Pontos a destacar:
+FUNCTION para Centralizar uma Regra:
+Exemplo: fn_verifica_saldo_suficiente. Lógica para "verificar se há saldo" é necessária em mais de um lugar (ao fazer um débito e ao pagar uma fatura). A função evita duplicar essa lógica em duas triggers diferentes, seguindo o princípio "Don't Repeat Yourself" (DRY).
+STORED PROCEDURE para Encapsular uma Ação:
+Exemplo: sp_fechar_fatura. "Fechar uma fatura" é uma ação de negócio. A procedure transforma essa ação complexa (verificar status, atualizar status) em um comando simples e seguro: CALL sp_fechar_fatura(123);.
+ 
+Tópico 4: Automação e Simplificação com EVENTS e VIEWS
+ 
+Objetivo: Recursos que facilitam a manutenção do banco e o consumo dos dados pela aplicação.
+Pontos a destacar:
+EVENT para Tarefas Agendadas:
+Exemplo: evt_marcar_faturas_atrasadas. Banco de dados podem funcionar como um "robô" que, toda noite, verifica as faturas que venceram e atualiza o status para "atrasada", sem nenhuma intervenção humana.
+VIEW para Simplificar Consultas:
+Exemplo: vw_extrato_conta. Fazer JOIN complexo dentro da view e chamar apenas um SELECT * FROM vw_extrato_conta para ter um extrato limpo e pronto, sem precisar reescrever a lógica da consulta toda vez.</pre>
+                </code> 
+            </p>
+        </section>
+        
+        <section>
+            <hr>
+            <h2>Material Adicional</h2>
+            <ul>
+                <li>SQL: <a href="assets/arquivos/Sistema-de-Controle-Financeiro-Pessoal-SQL.sql" target="_blank">Sistema de Controle Financeiro Pessoal</a></li>
+                <li>SQL: <a href="assets/arquivos/Sistema-de-Controle-Financeiro-Pessoal-SQL-Dados.sql" target="_blank">Sistema de Controle Financeiro Pessoal - Dados</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- Modal 1 -->
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img src="assets/images/modelo-conceitual.png" title="Modelo Conceitual" width="100%" />
+        </div>
+    </div>
+
+    <!-- Modal 2 -->
+    <div id="modal2" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img src="assets/images/modelo-logico.png" title="Modelo Lógico" width="100%" />
+        </div>
+    </div>Trigger1.png
+
+    <!-- Modal 3 -->
+    <div id="modal3" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/usuario.png" title="Usuario" width="100%" />
+        </div>
+    </div>
+
+
+    <!-- Modal / Triggers 1 -->
+    <div id="modal-Trigger1" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/Trigger1.png" title="Trigger 1" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Triggers 2 -->
+    <div id="modal-Trigger2" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/Trigger2.png" title="Trigger 2" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Triggers 3 -->
+    <div id="modal-Trigger3" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/Trigger3.png" title="Trigger 3" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Triggers 4 -->
+    <div id="modal-Trigger4" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/Trigger4.png" title="Trigger 4" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Triggers 5 -->
+    <div id="modal-Trigger5" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/Trigger5.png" title="Trigger 5" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Triggers 6 -->
+    <div id="modal-Trigger6" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/Trigger6.png" title="Trigger 6" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Triggers 13 -->
+    <div id="modal-Trigger13" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/Trigger13.png" title="Impede reduzir valor planejado abaixo do já usado" width="100%" />
+        </div>
+    </div>
+
+    
+    <!-- Modal / Views 1 -->
+    <div id="modal-View1" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/View1.png" title="Views 1" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Views 1 -->
+    <div id="modal-View2" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/View2.png" title="Views 2" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Views 3 -->
+    <div id="modal-View3" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/View3.png" title="Views 3" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Views 4 -->
+    <div id="modal-View4" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/View4.png" title="Views 4" width="100%" />
+        </div>
+    </div>
+
+    
+    <!-- Modal / Usuario -->
+    <div id="modal-Usuario" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/TabelaUsuario.png" title="Usuario" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Categoria -->
+    <div id="modal-Categoria" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/TabelaCategoria.png" title="Categoria" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Conta -->
+    <div id="modal-Conta" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/TabelaConta.png" title="Conta" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Cartão -->
+    <div id="modal-Cartao" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/TabelaCartao.png" title="Cartão" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / StatusFatura -->
+    <div id="modal-StatusFatura" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/TabelaStatusFatura.png" title="Status da Fatura" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Fatura -->
+    <div id="modal-Fatura" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/TabelaFatura.png" title="Fatura" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Orçamento -->
+    <div id="modal-Orcamento" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/TabelaOrcamento.png" title="Orçamento" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Operação -->
+    <div id="modal-Operacao" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/TabelaOperacao.png" title="Operação" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / Transação -->
+    <div id="modal-Transacao" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/TabelaTransacao.png" title="Transação" width="100%" />
+        </div>
+    </div>
+    <!-- Modal / PagamentoFatura -->
+    <div id="modal-PagamentoFatura" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/TabelaPagamentoFatura.png" title="Pagamento de Fatura" width="100%" />
+        </div>
+    </div>
+                        
+    <!-- FOOTER: DEBUG INFO + COPYRIGHTS + SCRIPTS -->
+    <footer>
+        <div class="environment">
+            <a href="index.html">Início</a> 
+            <a href="projeto.html">Projeto</a> 
+            <a href="dicionario-de-dados.html">Dicionário de Dados</a> 
+            <a href="participantes.html">Participantes</a>
+        </div>
+        <div class="copyrights">
+            <p>&copy; 2025 Sistema de Controle Financeiro Pessoal</p>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="assets/js/scripts.js"></script>
+
+</body>
+</html>
