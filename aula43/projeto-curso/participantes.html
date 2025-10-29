@@ -1,0 +1,92 @@
+<!-- HEADER -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Projeto</title>
+    <meta name="description" content="The small framework with powerful features">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="assets/images/favicon.ico">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- HEADER: MENU + HEROE SECTION -->
+<header>
+    <div class="menu">
+        <ul>
+            <li class="logo">
+                <a href="/">
+                    <img src="assets/images/logo-controle-financeiro.png" alt="Controle Financeiro" width="150" />
+                </a>
+            </li>
+            <li class="menu-toggle">
+                <button id="menuToggle">&#9776;</button>
+            </li>
+            <li class="menu-item hidden"><a href="index.html">Início</a></li>
+            <li class="menu-item hidden"><a href="projeto.html">Projeto</a></li>
+            <li class="menu-item hidden"><a href="participantes.html">Participantes</a></li>
+        </ul>
+    </div>
+</header>
+
+<!-- MAIN -->
+ <main>
+    <div class="heroe">
+        <section>
+            <h1>Participantes</h1>
+        </section>
+    </div>
+
+    <section>
+        <h2>Beatriz Toso Silva</h2>
+        <h4>Desenvolvedor de Banco de Dados</h4>
+        <p>Atuante como Programador Full-Stack Pleno em desenvolvimento de sites e sistemas com experiência de alguns anos. Iniciei profissionalmente em TI e Internet como Web Designer em março de 2005.</p>
+        <p>Considero prazeroso saber programar e evoluir constantemente. Algumas das tecnologias que utilizo para desenvolvimento: CSS3, HTML5, Bootstrap, JavaScript, JQuery, PHP Orientado a Objetos, Framework PHP CodeIgniter, MySQL, e toda dinâmica que envolve o universo do desenvolvimento para internet.</p>
+        <p>Atualmente estou empenhado em aprimorar os conhecimentos em OpenSource, Linux, PHP, CodeIgniter, Python, Flask, Django, MongoDB, MySQL, PostgreSQL, Docker, entre outras tecnologias utilizadas diariamente para otimizar o dia a dia dos desenvolvedores e das empresas.<p>
+        <p>https://www.linkedin.com/in/edmarinocencio | https://mazinhoweb.github.io</p>
+    </section>
+
+    <div class="further">
+        <section>
+            <h2>Carlos Eduardo de Freitas Garcia</h2>
+            <h4>Analista de Requisitos</h4>
+            <p>Atuante como Programador Full-Stack Pleno em desenvolvimento de sites e sistemas com experiência de alguns anos. Iniciei profissionalmente em TI e Internet como Web Designer em março de 2005.</p>
+            <p>Considero prazeroso saber programar e evoluir constantemente. Algumas das tecnologias que utilizo para desenvolvimento: CSS3, HTML5, Bootstrap, JavaScript, JQuery, PHP Orientado a Objetos, Framework PHP CodeIgniter, MySQL, e toda dinâmica que envolve o universo do desenvolvimento para internet.</p>
+            <p>Atualmente estou empenhado em aprimorar os conhecimentos em OpenSource, Linux, PHP, CodeIgniter, Python, Flask, Django, MongoDB, MySQL, PostgreSQL, Docker, entre outras tecnologias utilizadas diariamente para otimizar o dia a dia dos desenvolvedores e das empresas.<p>
+            <p>https://www.linkedin.com/in/edmarinocencio | https://mazinhoweb.github.io</p>
+        </section>
+    </div>
+
+    <section>
+        <h2>Edmar de Souza Inocencio</h2>
+        <h4>Programador Full-Stack</h4>
+        <p>Atuante como Programador Full-Stack Pleno em desenvolvimento de sites e sistemas com experiência de alguns anos. Iniciei profissionalmente em TI e Internet como Web Designer em março de 2005.</p>
+        <p>Considero prazeroso saber programar e evoluir constantemente. Algumas das tecnologias que utilizo para desenvolvimento: CSS3, HTML5, Bootstrap, JavaScript, JQuery, PHP Orientado a Objetos, Framework PHP CodeIgniter, MySQL, e toda dinâmica que envolve o universo do desenvolvimento para internet.</p>
+        <p>Atualmente estou empenhado em aprimorar os conhecimentos em OpenSource, Linux, PHP, CodeIgniter, Python, Flask, Django, MongoDB, MySQL, PostgreSQL, Docker, entre outras tecnologias utilizadas diariamente para otimizar o dia a dia dos desenvolvedores e das empresas.<p>
+        <p><a href="https://www.linkedin.com/in/edmarinocencio" target="_blank"><img  src="<?= base_url('assets/images/linkedin-icon.png'); ?>" alt="Linkedin - Edmar Inocencio" width="20" ></a> <a href="https://mazinhoweb.github.io" target="_blank"><img  src="<?= base_url('assets/images/online-icon.png'); ?>" alt="GitHub - Mazinho Web" width="20" ></a></p>
+
+    </section>
+</main>
+                    
+<!-- FOOTER: DEBUG INFO + COPYRIGHTS + SCRIPTS -->
+<footer>
+    <div class="environment"></div>
+    <div class="copyrights">
+        <p>&copy; 2025 Controle Financeiro Pessoal.</p>
+    </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script {csp-script-nonce}>
+    document.getElementById("menuToggle").addEventListener('click', toggleMenu);
+    function toggleMenu() {
+        var menuItems = document.getElementsByClassName('menu-item');
+        for (var i = 0; i < menuItems.length; i++) {
+            var menuItem = menuItems[i];
+            menuItem.classList.toggle("hidden");
+        }
+    }
+</script>
+</body>
+</html>
