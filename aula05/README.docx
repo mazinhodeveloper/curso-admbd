@@ -1,0 +1,174 @@
+Professor Celso 
+
+Algumas funções
+// Criando uma chave estrangeira
+
+ALTER TABLE produtos
+
+ADD CONSTRAINT fk_produtos_categorias
+
+FOREIGN KEY (id_categoria)
+
+REFERENCES categorias (id_categoria);
+ 
+ 
+// Fazendo um relacionamento
+
+select * from produtos INNER JOIN categorias on produtos.id_categoria=categorias.id_categoria
+ 
+ 
+//agrupando para contar por categorias
+
+select categorias.nome_categoria,count(categorias.id_categoria) as total from produtos INNER JOIN categorias on produtos.id_categoria=categorias.id_categoria group by categorias.nome_categoria;
+ 
+//Agrupando e somando os preços por categorias
+
+select categorias.nome_categoria,sum(produtos.preco_compra) as total from produtos INNER JOIN categorias on produtos.id_categoria=categorias.id_categoria group by categorias.nome_categoria;
+ 
+
+
+-----------
+
+Reajustando o preço em 10% e arredondando com duas casas decimais
+select nome_produto,preco_compra,round(preco_compra*1.1,2) as preco_reajustado from produtos INNER JOIN categorias on produtos.id_categoria=categorias.id_categoria;
+ 
+
+
+-----------
+
+script das tabelas produtos e categorias
+CREATE TABLE `categorias` (
+
+  `id_categoria` int(11) NOT NULL,
+
+  `nome_categoria` varchar(50) NOT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+--
+
+-- Despejando dados para a tabela `categorias`
+
+--
+ 
+INSERT INTO `categorias` (`id_categoria`, `nome_categoria`) VALUES
+
+(1, 'Celulares'),
+
+(2, 'Impressoras'),
+
+(3, 'Notebooks');
+ 
+--
+
+-- Índices para tabelas despejadas
+
+--
+ 
+--
+
+-- Índices de tabela `categorias`
+
+--
+
+ALTER TABLE `categorias`
+
+  ADD PRIMARY KEY (`id_categoria`);
+ 
+--
+
+-- AUTO_INCREMENT para tabelas despejadas
+
+--
+ 
+--
+
+-- AUTO_INCREMENT de tabela `categorias`
+
+--
+
+ALTER TABLE `categorias`
+
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+ 
+
+
+-----------
+
+Script tabela pessoas
+CREATE TABLE `pessoas` (
+
+  `id_pessoa` int(11) NOT NULL,
+
+  `nome_pessoa` varchar(70) NOT NULL,
+
+  `email` varchar(100) NOT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+--
+
+-- Despejando dados para a tabela `pessoas`
+
+--
+ 
+INSERT INTO `pessoas` (`id_pessoa`, `nome_pessoa`, `email`) VALUES
+
+(1, 'Maria jose da silva', 'maria@yahoo.com.br'),
+
+(2, 'Manoel josé da Silva', 'mansilva@hotmail.com'),
+
+(3, 'Roberto Carlos Lima', 'rob@yahoo.com.br'),
+
+(4, 'Silvana Aparecida Costa', 'silvana@hotmail.com');
+ 
+--
+
+-- Índices para tabelas despejadas
+
+--
+ 
+--
+
+-- Índices de tabela `pessoas`
+
+--
+
+ALTER TABLE `pessoas`
+
+  ADD PRIMARY KEY (`id_pessoa`);
+ 
+--
+
+-- AUTO_INCREMENT para tabelas despejadas
+
+--
+ 
+--
+
+-- AUTO_INCREMENT de tabela `pessoas`
+
+--
+
+ALTER TABLE `pessoas`
+
+  MODIFY `id_pessoa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+ 
+
+
+-----------
+
+Consulta para exibir somente o primeiro nome da pessoa e e-mail
+SELECT SUBSTRING(nome_pessoa,1,LOCATE(' ', nome_pessoa)) as primeiro_nome, email FROM pessoas;
+ 
+
+
+-----------
+
+
+
+
+
+
