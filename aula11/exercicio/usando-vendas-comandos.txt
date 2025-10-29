@@ -1,0 +1,56 @@
+-- Favor testar os comandos 
+
+-- consulta com contagem simples 
+SELECT count(id) as total_registros FROM `vendas`; 
+
+-- consulta com contagem adicionando uma condição 
+SELECT count(id) as total_registros_SP FROM `vendas` where estado='SP'; 
+
+-- consulta com média 
+SELECT avg(valor) as media_vendas FROM `vendas`; 
+
+-- consulta com média e condição 
+SELECT avg(valor) as media_vendas FROM `vendas` where estado='RJ'; 
+
+-- consulta com soma de valor simples 
+SELECT sum(valor) as total_vendas FROM `vendas`; 
+
+-- consulta com soma de valor com condição 
+SELECT sum(valor) as total_vendas_MG FROM `vendas` where estado='MG'; 
+
+-- consulta com soma de valor com condição mais complexa 
+SELECT sum(valor) as total_vendas_SUDESTE FROM `vendas` where estado='MG' or estado='SP' or estado='RJ' or estado='ES'; 
+
+-- Consulta usando a função in() 
+SELECT sum(valor) as total_vendas_SUDESTE FROM `vendas` where estado IN('MG','SP','RJ','ES'); 
+
+-- Consulta usando agrupamento 
+SELECT estado,sum(valor) as total FROM `vendas` group by estado order by estado; 
+
+-- Desc significa ordem decrescente 
+SELECT estado,sum(valor) as total FROM `vendas` group by estado order by estado desc; 
+
+-- Consulta usando contagem condição e agrupamento 
+SELECT estado,sum(valor) as total_sudeste FROM `vendas` where estado in('SP','RJ','MG','ES') group by estado; 
+
+-- Consulta usando contagem condição e agrupamento e condição de agrupamento (having) 
+SELECT estado, SUM(valor) AS total_sudeste FROM vendas WHERE estado IN ('SP','RJ','MG','ES') GROUP BY estado HAVING SUM(valor) > 500; 
+
+
+-- VIEW 
+-- Criando uma view, que é uma espécie de função onde colocamos uma consulta grande em uma única palavra. 
+-- EX:
+CREATE VIEW sudeste AS
+SELECT estado, SUM(valor) AS total_sudeste
+FROM vendas
+WHERE estado IN ('SP','RJ','MG','ES')
+GROUP BY estado;
+ 
+-- Quando você consultar: select * from sudeste, irá executar a consulta programada.
+
+
+ 
+
+
+
+

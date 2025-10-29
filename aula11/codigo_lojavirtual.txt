@@ -1,0 +1,90 @@
+CREATE DATABASE lojavirtual; 
+
+USE lojavirtual; 
+
+create table fornecedor(
+	id_fornecedor int primary key auto_increment,
+    fornecedor_cnpf varchar(30),
+    fornecedor_razaosocial varchar(70),
+    fornecedor_telefone varchar(20),
+    fornecedor_email varchar(120)
+);
+
+create table categoria(
+	id_categoria int primary key auto_increment,
+    categoria_nome varchar(120),
+    categoria_descricao text
+);
+
+create table produto(
+	id_produto int primary key auto_increment,
+	produto_nome varchar(120),
+	produto_descricao text,
+    produto_preço float,
+    produto_peso float,
+    produto_quantidade int,
+    id_fornecedor int,
+    id_categoria int,
+    foreign key (id_fornecedor) references fornecedor(id_fornecedor),
+    foreign key (id_categoria) references categoria(id_categoria)
+);
+
+create table endereco(
+	id_endereco int primary key auto_increment,
+    endereco_cep varchar(12),
+    endereco_estado varchar(2),
+    endereco_cidade varchar(70),
+    endereco_bairro varchar(70),
+    endereco_logradouro varchar(120),
+    endereco_complemento varchar(20)
+);
+
+create table cliente(
+	id_cliente int primary key auto_increment,
+    cliente_nome varchar(120),
+    cliente_email varchar(120),
+    cliente_senha varchar(20),
+    cliente_cpf varchar(25),
+    cliente_telefone varchar(20)
+);
+
+create table clienteendereco(
+	id_clienteendereco int primary key auto_increment,
+    id_endereco int,
+    id_cliente int,
+    foreign key (id_endereco) references endereco(id_endereco),
+    foreign key (id_cliente) references cliente(id_cliente)
+);
+
+create table pedido(
+	id_pedido int primary key auto_increment,
+    pedido_data datetime,
+    pedido_total float,
+    pedido_status boolean, 
+    id_cliente int
+);
+
+create table itenspedido(
+	id_itenspedido int primary key auto_increment,
+    itenspedido_quantidade int,
+    itenspedido_subtotal float,
+    id_produto int,
+    id_pedido int,
+    foreign key (id_produto) references produto(id_produto),
+    foreign key (id_pedido) references pedido(id_pedido)
+);
+
+create table entradaestoque(
+	id_entradaestoque int primary key auto_increment,
+    entradaestoque_quantidade int,
+    entradaestoque_data datetime,
+    id_produto int,
+    id_fornecedor int,
+    foreign key (id_produto) references produto(id_produto),
+    foreign key (id_fornecedor) references fornecedor(id_fornecedor)
+);
+
+
+
+
+

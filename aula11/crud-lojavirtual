@@ -1,0 +1,6 @@
+USE lojavirtual;
+SELECT produto_nome FROM produto WHERE id_fornecedor = 1; 
+SELECT produto_nome FROM produto WHERE id_categoria = 3;
+
+
+

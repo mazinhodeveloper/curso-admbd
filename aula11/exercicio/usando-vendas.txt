@@ -1,0 +1,68 @@
+USE vendas; 
+
+SELECT count(id) as total_registros FROM `vendas`; 
+
+SELECT count(id) as total_registros_SP FROM `vendas` where estado='SP'; 
+ 
+SELECT avg(valor) as media_vendas FROM `vendas`;  
+
+SELECT avg(valor) as media_vendas FROM `vendas` WHERE estado = 'RJ';
+
+
+
+USE vendas; 
+
+SELECT sum(valor) as total_vendas FROM `vendas`;
+
+SELECT sum(valor) as total_vendas FROM `vendas` WHERE estado = 'AM';
+
+SELECT sum(valor) as total_vendas_MG FROM `vendas` WHERE estado = 'MG';
+
+SELECT sum(valor) as total_vendas_MG FROM `vendas` WHERE estado = 'MG';
+
+SELECT sum(valor) as total_vendas_SUDESTE FROM `vendas` WHERE estado = 'MG' OR estado = 'SP' OR estado = 'RJ' OR estado = 'ES';
+
+SELECT sum(valor) as total_vendas_SUDESTE FROM `vendas` WHERE estado IN ('MG','SP','RJ','ES');
+
+
+
+USE vendas; 
+
+SELECT estado,sum(valor) as total FROM `vendas`; 
+
+SELECT estado,sum(valor) as total FROM `vendas` GROUP BY estado; 
+
+SELECT estado,sum(valor) as total FROM `vendas` GROUP BY estado ORDER BY estado; 
+
+SELECT estado,sum(valor) as total FROM `vendas` GROUP BY estado ORDER BY estado DESC; 
+
+
+
+
+USE vendas; 
+
+SELECT estado,sum(valor) as total FROM `vendas` GROUP BY estado ORDER BY estado;
+
+SELECT estado,sum(valor) as total FROM `vendas` GROUP BY estado ORDER BY estado DESC;
+
+
+
+USE vendas; 
+
+SELECT estado,sum(valor) as total_sudeste FROM `vendas` WHERE estado IN('SP','RJ','MJ','ES') GROUP BY estado;
+
+SELECT estado,sum(valor) as total_sudeste FROM `vendas` WHERE estado IN('SP','RJ','MJ','ES') GROUP BY estado HAVING SUM(valor) > 500; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

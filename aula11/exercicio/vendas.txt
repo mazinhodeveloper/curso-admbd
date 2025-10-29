@@ -1,0 +1,611 @@
+--
+
+-- Script banco de dados
+
+--
+
+CREATE DATABASE vendas; 
+
+USE vendas; 
+
+
+--
+
+-- Estrutura para tabela `cartoes`
+
+--
+ 
+CREATE TABLE `cartoes` (
+
+  `id_cartao` int(11) NOT NULL,
+
+  `id_cliente` int(11) DEFAULT NULL,
+
+  `bandeira` varchar(20) DEFAULT NULL,
+
+  `ultimos_digitos` varchar(4) DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `categorias`
+
+--
+ 
+CREATE TABLE `categorias` (
+
+  `id_categoria` int(11) NOT NULL,
+
+  `nome_categoria` varchar(100) NOT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `clientes`
+
+--
+ 
+CREATE TABLE `clientes` (
+
+  `id_cliente` int(11) NOT NULL,
+
+  `nome` varchar(100) NOT NULL,
+
+  `cpf` varchar(20) DEFAULT NULL,
+
+  `email` varchar(100) DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `enderecos`
+
+--
+ 
+CREATE TABLE `enderecos` (
+
+  `id_endereco` int(11) NOT NULL,
+
+  `id_cliente` int(11) DEFAULT NULL,
+
+  `logradouro` varchar(100) DEFAULT NULL,
+
+  `cidade` varchar(50) DEFAULT NULL,
+
+  `uf` char(2) DEFAULT NULL,
+
+  `cep` varchar(10) DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `fornecedores`
+
+--
+ 
+CREATE TABLE `fornecedores` (
+
+  `id_fornecedor` int(11) NOT NULL,
+
+  `nome` varchar(100) NOT NULL,
+
+  `cnpj` varchar(20) DEFAULT NULL,
+
+  `email` varchar(100) DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `itens_entrada`
+
+--
+ 
+CREATE TABLE `itens_entrada` (
+
+  `id_item` int(11) NOT NULL,
+
+  `id_nota` int(11) DEFAULT NULL,
+
+  `id_produto` int(11) DEFAULT NULL,
+
+  `quantidade` int(11) DEFAULT NULL,
+
+  `preco_unit` decimal(10,2) DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `itens_pedido`
+
+--
+ 
+CREATE TABLE `itens_pedido` (
+
+  `id_item` int(11) NOT NULL,
+
+  `id_pedido` int(11) DEFAULT NULL,
+
+  `id_produto` int(11) DEFAULT NULL,
+
+  `quantidade` int(11) DEFAULT NULL,
+
+  `preco_unit` decimal(10,2) DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `notas_entrada`
+
+--
+ 
+CREATE TABLE `notas_entrada` (
+
+  `id_nota` int(11) NOT NULL,
+
+  `id_fornecedor` int(11) DEFAULT NULL,
+
+  `data` date DEFAULT NULL,
+
+  `total` decimal(10,2) DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `pagamentos`
+
+--
+ 
+CREATE TABLE `pagamentos` (
+
+  `id_pagamento` int(11) NOT NULL,
+
+  `tipo` varchar(50) DEFAULT NULL,
+
+  `status` varchar(20) DEFAULT NULL,
+
+  `data` date DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `pedidos`
+
+--
+ 
+CREATE TABLE `pedidos` (
+
+  `id_pedido` int(11) NOT NULL,
+
+  `id_cliente` int(11) DEFAULT NULL,
+
+  `data` date DEFAULT NULL,
+
+  `total` decimal(10,2) DEFAULT NULL,
+
+  `id_pagamento` int(11) DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `produtos`
+
+--
+ 
+CREATE TABLE `produtos` (
+
+  `id_produto` int(11) NOT NULL,
+
+  `nome` varchar(100) NOT NULL,
+
+  `descricao` text DEFAULT NULL,
+
+  `preco` decimal(10,2) NOT NULL,
+
+  `estoque_min` int(11) DEFAULT 0,
+
+  `id_categoria` int(11) DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- --------------------------------------------------------
+ 
+--
+
+-- Estrutura para tabela `usuarios_adm`
+
+--
+ 
+CREATE TABLE `usuarios_adm` (
+
+  `id_usuario` int(11) NOT NULL,
+
+  `nome` varchar(100) DEFAULT NULL,
+
+  `login` varchar(50) DEFAULT NULL,
+
+  `senha_hash` varchar(255) DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+--
+
+-- Índices para tabelas despejadas
+
+--
+ 
+--
+
+-- Índices de tabela `cartoes`
+
+--
+
+ALTER TABLE `cartoes`
+
+  ADD PRIMARY KEY (`id_cartao`),
+
+  ADD KEY `id_cliente` (`id_cliente`);
+ 
+--
+
+-- Índices de tabela `categorias`
+
+--
+
+ALTER TABLE `categorias`
+
+  ADD PRIMARY KEY (`id_categoria`);
+ 
+--
+
+-- Índices de tabela `clientes`
+
+--
+
+ALTER TABLE `clientes`
+
+  ADD PRIMARY KEY (`id_cliente`);
+ 
+--
+
+-- Índices de tabela `enderecos`
+
+--
+
+ALTER TABLE `enderecos`
+
+  ADD PRIMARY KEY (`id_endereco`),
+
+  ADD KEY `id_cliente` (`id_cliente`);
+ 
+--
+
+-- Índices de tabela `fornecedores`
+
+--
+
+ALTER TABLE `fornecedores`
+
+  ADD PRIMARY KEY (`id_fornecedor`);
+ 
+--
+
+-- Índices de tabela `itens_entrada`
+
+--
+
+ALTER TABLE `itens_entrada`
+
+  ADD PRIMARY KEY (`id_item`),
+
+  ADD KEY `id_nota` (`id_nota`),
+
+  ADD KEY `id_produto` (`id_produto`);
+ 
+--
+
+-- Índices de tabela `itens_pedido`
+
+--
+
+ALTER TABLE `itens_pedido`
+
+  ADD PRIMARY KEY (`id_item`),
+
+  ADD KEY `id_pedido` (`id_pedido`),
+
+  ADD KEY `id_produto` (`id_produto`);
+ 
+--
+
+-- Índices de tabela `notas_entrada`
+
+--
+
+ALTER TABLE `notas_entrada`
+
+  ADD PRIMARY KEY (`id_nota`),
+
+  ADD KEY `id_fornecedor` (`id_fornecedor`);
+ 
+--
+
+-- Índices de tabela `pagamentos`
+
+--
+
+ALTER TABLE `pagamentos`
+
+  ADD PRIMARY KEY (`id_pagamento`);
+ 
+--
+
+-- Índices de tabela `pedidos`
+
+--
+
+ALTER TABLE `pedidos`
+
+  ADD PRIMARY KEY (`id_pedido`),
+
+  ADD KEY `id_cliente` (`id_cliente`);
+ 
+--
+
+-- Índices de tabela `produtos`
+
+--
+
+ALTER TABLE `produtos`
+
+  ADD PRIMARY KEY (`id_produto`),
+
+  ADD KEY `id_categoria` (`id_categoria`);
+ 
+--
+
+-- Índices de tabela `usuarios_adm`
+
+--
+
+ALTER TABLE `usuarios_adm`
+
+  ADD PRIMARY KEY (`id_usuario`),
+
+  ADD UNIQUE KEY `login` (`login`);
+ 
+--
+
+-- AUTO_INCREMENT para tabelas despejadas
+
+--
+ 
+--
+
+-- AUTO_INCREMENT de tabela `cartoes`
+
+--
+
+ALTER TABLE `cartoes`
+
+  MODIFY `id_cartao` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `categorias`
+
+--
+
+ALTER TABLE `categorias`
+
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `clientes`
+
+--
+
+ALTER TABLE `clientes`
+
+  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `enderecos`
+
+--
+
+ALTER TABLE `enderecos`
+
+  MODIFY `id_endereco` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `fornecedores`
+
+--
+
+ALTER TABLE `fornecedores`
+
+  MODIFY `id_fornecedor` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `itens_entrada`
+
+--
+
+ALTER TABLE `itens_entrada`
+
+  MODIFY `id_item` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `itens_pedido`
+
+--
+
+ALTER TABLE `itens_pedido`
+
+  MODIFY `id_item` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `notas_entrada`
+
+--
+
+ALTER TABLE `notas_entrada`
+
+  MODIFY `id_nota` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `pagamentos`
+
+--
+
+ALTER TABLE `pagamentos`
+
+  MODIFY `id_pagamento` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `pedidos`
+
+--
+
+ALTER TABLE `pedidos`
+
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `produtos`
+
+--
+
+ALTER TABLE `produtos`
+
+  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- AUTO_INCREMENT de tabela `usuarios_adm`
+
+--
+
+ALTER TABLE `usuarios_adm`
+
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT;
+ 
+--
+
+-- Restrições para tabelas despejadas
+
+--
+ 
+--
+
+-- Restrições para tabelas `cartoes`
+
+--
+
+ALTER TABLE `cartoes`
+
+  ADD CONSTRAINT `cartoes_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`);
+ 
+--
+
+-- Restrições para tabelas `enderecos`
+
+--
+
+ALTER TABLE `enderecos`
+
+  ADD CONSTRAINT `enderecos_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`);
+ 
+--
+
+-- Restrições para tabelas `itens_entrada`
+
+--
+
+ALTER TABLE `itens_entrada`
+
+  ADD CONSTRAINT `itens_entrada_ibfk_1` FOREIGN KEY (`id_nota`) REFERENCES `notas_entrada` (`id_nota`),
+
+  ADD CONSTRAINT `itens_entrada_ibfk_2` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`);
+ 
+--
+
+-- Restrições para tabelas `itens_pedido`
+
+--
+
+ALTER TABLE `itens_pedido`
+
+  ADD CONSTRAINT `itens_pedido_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`),
+
+  ADD CONSTRAINT `itens_pedido_ibfk_2` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`);
+ 
+--
+
+-- Restrições para tabelas `notas_entrada`
+
+--
+
+ALTER TABLE `notas_entrada`
+
+  ADD CONSTRAINT `notas_entrada_ibfk_1` FOREIGN KEY (`id_fornecedor`) REFERENCES `fornecedores` (`id_fornecedor`);
+ 
+--
+
+-- Restrições para tabelas `pedidos`
+
+--
+
+ALTER TABLE `pedidos`
+
+  ADD CONSTRAINT `pedidos_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`);
+ 
+--
+
+-- Restrições para tabelas `produtos`
+
+--
+
+ALTER TABLE `produtos`
+
+  ADD CONSTRAINT `produtos_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`);
+ 

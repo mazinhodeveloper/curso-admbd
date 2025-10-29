@@ -1,0 +1,19 @@
+Produto(id_produto, produto_nome, produto_descriçao, produto_preço, produto_peso, produto_quantidade, id_fornecedor, id_categoria)
+
+Categoria(id_categoria, categoria_nome, categoria_descricao)
+
+Cliente(id_cliente, cliente_nome, cliente_email, cliente_senha, cliente_cpf, cliente_telefone)
+
+ClienteEndereco(id_clienteendereco, id_endereco, id_cliente)
+
+Endereco(id_endereco, endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_logradouro, endereco_complemento)
+
+Fornecedor(id_fornecedor, fornecedor_cnpf, fornecedor_razaosocial, fornecedor_telefone, fornecedor_email)
+
+Pedido(id_pedido, id_cliente, pedido_data, pedido_total, pedido_status)
+
+ItensPedido(id_itenspedido, id_produto, id_pedido, itenspedido_quantidade, itenspedido_subtotal)
+
+EntradaEstoque(id_entradaestoque, id_produto, id_fornecedor, entradaestoque_quantidade, entradaestoque_data)
+
+

@@ -1,0 +1,112 @@
+CREATE TABLE vendas (
+    id INT PRIMARY KEY,
+    nome VARCHAR(100),
+    descricao VARCHAR(100),
+    cidade VARCHAR(100),
+    estado CHAR(2),
+    valor DECIMAL(10,2)
+);
+ 
+ 
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (1, 'Anthony', 'Serviço Y', 'Silva', 'RR', 992.47);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (2, 'Maria Eduarda', 'Produto C', 'Almeida do Norte', 'PI', 189.75);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (3, 'Luiza', 'Serviço X', 'Teixeira', 'AC', 782.28);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (4, 'Ana Julia', 'Produto C', 'da Rosa', 'RS', 816.33);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (5, 'Henrique', 'Produto C', 'Fogaça Verde', 'RJ', 76.46);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (6, 'Isabella', 'Produto C', 'Gomes', 'PA', 481.79);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (7, 'Erick', 'Serviço X', 'Cunha do Amparo', 'GO', 768.92);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (8, 'Erick', 'Produto B', 'Fogaça de Goiás', 'GO', 584.29);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (9, 'Juliana', 'Produto B', 'Duarte', 'SP', 529.95);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (10, 'Alice', 'Produto B', 'Azevedo', 'PB', 343.5);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (11, 'Alana', 'Serviço X', 'Dias', 'AM', 624.78);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (12, 'Isadora', 'Produto A', 'Teixeira', 'MS', 738.98);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (13, 'Pedro Miguel', 'Produto C', 'Vieira', 'MG', 161.25);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (14, 'João Pedro', 'Serviço Y', 'Pereira do Sul', 'RS', 715.51);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (15, 'Leonardo', 'Serviço Y', 'Pires', 'AL', 873.59);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (16, 'Alana', 'Serviço X', 'Novaes Alegre', 'SP', 666.72);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (17, 'Caroline', 'Serviço X', 'Almeida', 'RS', 586.57);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (18, 'Rebeca', 'Serviço Y', 'da Cruz', 'MA', 733.24);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (19, 'Catarina', 'Produto B', 'Souza das Flores', 'ES', 544.91);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (20, 'Ana Clara', 'Produto C', 'Costa Alegre', 'BA', 174.67);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (21, 'Ana Sophia', 'Serviço Y', 'Gonçalves Paulista', 'BA', 926.51);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (22, 'Ana', 'Serviço X', 'Caldeira Grande', 'RR', 947.44);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (23, 'Otávio', 'Serviço X', 'Mendes', 'AP', 352.39);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (24, 'Alícia', 'Serviço X', 'da Costa do Galho', 'MT', 235.01);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (25, 'Bruna', 'Produto A', 'Aragão', 'GO', 974.25);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (26, 'Isaac', 'Produto C', 'Souza', 'CE', 606.73);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (27, 'Marcelo', 'Serviço Y', 'da Luz', 'SE', 22.58);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (28, 'Leonardo', 'Produto A', 'da Cunha', 'CE', 629.61);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (29, 'Pedro', 'Produto B', 'da Rocha', 'CE', 950.06);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (30, 'Clara', 'Serviço X', 'Porto da Prata', 'AC', 523.41);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (31, 'Augusto', 'Produto A', 'Cardoso', 'PI', 533.72);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (32, 'Alícia', 'Produto C', 'Pereira', 'SE', 510.22);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (33, 'Marina', 'Serviço Y', 'Fernandes de Cavalcanti', 'MS', 471.69);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (34, 'Melissa', 'Serviço X', 'Costela da Prata', 'BA', 26.29);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (35, 'Raquel', 'Serviço X', 'Dias', 'AL', 862.02);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (36, 'Isabella', 'Produto C', 'Gomes', 'AL', 69.25);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (37, 'Davi Lucca', 'Serviço X', 'da Mota Paulista', 'PB', 279.13);
+
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (38, 'Caio', 'Produto A', 'Lopes', 'TO', 40.72);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (39, 'Julia', 'Produto A', 'Fogaça Alegre', 'SC', 590.56);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (40, 'Maysa', 'Produto B', 'Nogueira do Galho', 'RR', 828.02);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (41, 'Ana Lívia', 'Serviço Y', 'Cardoso de Minas', 'RJ', 995.9);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (42, 'Gabriela', 'Serviço X', 'Alves', 'RS', 725.17);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (43, 'Ana Sophia', 'Produto B', 'da Cunha Paulista', 'DF', 676.56);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (44, 'Yasmin', 'Produto B', 'Caldeira', 'RS', 876.08);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (45, 'Julia', 'Serviço Y', 'Sales do Galho', 'MG', 750.88);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (46, 'Melissa', 'Serviço X', 'Santos', 'SP', 988.84);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (47, 'Mariane', 'Produto B', 'Fogaça', 'AC', 20.83);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (48, 'Cauã', 'Produto C', 'Costela', 'PB', 809.15);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (49, 'Marcelo', 'Produto B', 'Souza da Serra', 'BA', 177.24);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (50, 'Ana Vitória', 'Produto B', 'Ribeiro', 'MA', 493.35);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (51, 'Calebe', 'Produto C', 'Ferreira', 'RN', 998.34);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (52, 'Carlos Eduardo', 'Produto C', 'Gomes', 'SE', 363.32);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (53, 'Júlia', 'Serviço X', 'Alves Grande', 'ES', 748.63);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (54, 'Arthur', 'Produto B', 'da Paz de Moura', 'SC', 901.29);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (55, 'Maria Sophia', 'Produto A', 'da Cunha Paulista', 'RN', 324.08);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (56, 'Isis', 'Produto B', 'Rezende', 'PI', 18.93);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (57, 'Maria Eduarda', 'Produto C', 'da Mota do Galho', 'SE', 145.24);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (58, 'Ana Luiza', 'Serviço Y', 'Peixoto', 'SE', 241.63);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (59, 'Isaac', 'Serviço Y', 'Nunes da Praia', 'PA', 900.49);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (60, 'Antônio', 'Serviço Y', 'Fogaça Alegre', 'DF', 778.29);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (61, 'Caio', 'Serviço Y', 'das Neves das Pedras', 'PB', 737.11);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (62, 'Benjamin', 'Produto A', 'da Costa de da Mata', 'SP', 891.96);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (63, 'Enrico', 'Serviço Y', 'das Neves de Dias', 'SP', 755.58);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (64, 'Ana Luiza', 'Produto C', 'da Conceição do Sul', 'RS', 532.54);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (65, 'Maria Julia', 'Serviço Y', 'Nascimento de Minas', 'RO', 369.88);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (66, 'André', 'Produto B', 'da Mata', 'PB', 12.94);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (67, 'Nina', 'Produto A', 'Nunes', 'SP', 66.61);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (68, 'Maria Julia', 'Produto A', 'Ribeiro do Norte', 'DF', 679.22);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (69, 'Maria', 'Produto A', 'Costa do Norte', 'AC', 875.86);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (70, 'Maria Alice', 'Serviço Y', 'Castro', 'AM', 419.33);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (71, 'Emilly', 'Serviço Y', 'Pereira de Minas', 'CE', 435.95);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (72, 'Maria Eduarda', 'Produto A', 'Silva', 'TO', 653.18);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (73, 'Ana Carolina', 'Produto C', 'Cardoso do Campo', 'SC', 115.44);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (74, 'Manuela', 'Serviço X', 'Peixoto de Costela', 'AL', 244.76);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (75, 'Bruna', 'Serviço X', 'Ramos', 'TO', 995.58);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (76, 'Heloísa', 'Produto A', 'Santos', 'RO', 222.63);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (77, 'Lorena', 'Serviço X', 'Moraes de Goiás', 'SC', 181.22);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (78, 'Bryan', 'Produto C', 'Barros de da Mata', 'ES', 813.74);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (79, 'Sarah', 'Serviço Y', 'Novaes', 'AM', 950.23);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (80, 'Bryan', 'Serviço Y', 'da Cunha', 'MG', 810.62);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (81, 'Levi', 'Serviço X', 'Monteiro', 'AL', 988.66);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (82, 'Marcelo', 'Produto C', 'da Luz', 'RO', 47.54);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (83, 'Sarah', 'Serviço X', 'Rodrigues', 'PI', 968.96);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (84, 'Ana Carolina', 'Produto B', 'Ramos Alegre', 'AL', 194.08);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (85, 'João Gabriel', 'Produto B', 'Costa', 'MS', 323.12);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (86, 'Cauê', 'Produto C', 'Lopes', 'SP', 123.86);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (87, 'Emanuella', 'Produto A', 'Caldeira da Praia', 'PA', 985.29);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (88, 'Pietra', 'Produto C', 'Cardoso', 'PI', 152.17);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (89, 'Esther', 'Produto C', 'Almeida de Melo', 'CE', 55.51);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (90, 'Ana Vitória', 'Produto B', 'Sales de Goiás', 'AP', 468.33);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (91, 'Davi', 'Serviço Y', 'Melo', 'AC', 902.85);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (92, 'Ana Luiza', 'Produto C', 'Lopes', 'SC', 892.75);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (93, 'Ana Clara', 'Produto C', 'Melo do Norte', 'AM', 873.47);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (94, 'Yuri', 'Produto C', 'Rodrigues', 'RN', 901.59);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (95, 'Amanda', 'Serviço X', 'da Cunha Verde', 'SE', 111.55);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (96, 'Beatriz', 'Serviço X', 'Rezende do Amparo', 'PB', 980.52);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (97, 'Otávio', 'Serviço X', 'da Luz de Nunes', 'PA', 674.91);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (98, 'Bárbara', 'Serviço X', 'Caldeira', 'AL', 788.32);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (99, 'Pedro Henrique', 'Serviço Y', 'Martins', 'MG', 614.11);
+INSERT INTO vendas (id, nome, descricao, cidade, estado, valor) VALUES (100, 'Alexia', 'Produto A', 'Fogaça das Pedras', 'SE', 486.08);
+

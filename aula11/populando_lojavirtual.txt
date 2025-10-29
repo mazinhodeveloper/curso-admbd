@@ -1,0 +1,69 @@
+USE lojavirtual; 
+
+INSERT INTO fornecedor (fornecedor_cnpf, fornecedor_razaosocial, fornecedor_telefone, fornecedor_email) VALUES
+('12.345.678/0001-90', 'Fornecedor Alpha Ltda', '(11) 98765-4321', 'contato@alpha.com'),
+('98.765.432/0001-12', 'Beta Comércio e Serviços', '(21) 91234-5678', 'vendas@beta.com'),
+('11.222.333/0001-44', 'Gamma Distribuidora', '(31) 99876-5432', 'suporte@gamma.com'),
+('22.333.444/0001-55', 'Delta Importações', '(41) 93456-7890', 'delta@import.com'),
+('33.444.555/0001-66', 'Epsilon Equipamentos', '(51) 98765-1234', 'contato@epsilon.com');
+
+INSERT INTO categoria (categoria_nome, categoria_descricao) VALUES
+('Eletrônicos', 'Produtos eletrônicos como celulares, computadores e acessórios.'),
+('Móveis', 'Móveis residenciais e comerciais, incluindo cadeiras, mesas e estantes.'),
+('Alimentos', 'Produtos alimentícios frescos, congelados e industrializados.'),
+('Roupas', 'Vestuário masculino, feminino e infantil, além de acessórios.'),
+('Livros', 'Livros de variados gêneros, incluindo literatura, técnicos e didáticos.');
+
+INSERT INTO produto (produto_nome, produto_descricao, produto_preço, produto_peso, produto_quantidade, id_fornecedor, id_categoria) VALUES
+('Smartphone XYZ', 'Smartphone com 128GB, 6GB RAM e câmera de 48MP', 1500.00, 0.180, 50, 1, 1),
+('Mesa de Escritório', 'Mesa com tampo de madeira e estrutura metálica', 750.50, 25.0, 20, 2, 2),
+('Camiseta Algodão', 'Camiseta 100% algodão, disponível em vários tamanhos', 45.90, 0.200, 100, 3, 4),
+('Livro de Programação', 'Livro sobre desenvolvimento em Python para iniciantes', 120.00, 0.500, 30, 4, 5),
+('Chocolate Amargo 70%', 'Chocolate amargo premium com 70% cacau, barra de 100g', 15.00, 0.100, 200, 5, 3);
+
+INSERT INTO endereco (endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_logradouro, endereco_complemento)
+VALUES ('01001-000', 'SP', 'São Paulo', 'Sé', 'Praça da Sé', 'Lado ímpar');
+INSERT INTO endereco (endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_logradouro, endereco_complemento)
+VALUES ('30130-010', 'MG', 'Belo Horizonte', 'Centro', 'Avenida Afonso Pena', 'Próximo ao Parque');
+INSERT INTO endereco (endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_logradouro, endereco_complemento)
+VALUES ('20040-020', 'RJ', 'Rio de Janeiro', 'Centro', 'Rua da Quitanda', 'Sala 702');
+INSERT INTO endereco (endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_logradouro, endereco_complemento)
+VALUES ('80010-180', 'PR', 'Curitiba', 'Centro', 'Rua XV de Novembro', 'Fundos');
+INSERT INTO endereco (endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_logradouro, endereco_complemento)
+VALUES ('40140-110', 'BA', 'Salvador', 'Barra', 'Avenida Oceânica', 'Ap 304');
+
+INSERT INTO cliente (cliente_nome, cliente_email, cliente_senha, cliente_cpf, cliente_telefone)
+VALUES ('Ana Paula Silva', 'ana.silva@gmail.com', 'senha123', '123.456.789-00', '(11) 91234-5678');
+INSERT INTO cliente (cliente_nome, cliente_email, cliente_senha, cliente_cpf, cliente_telefone)
+VALUES ('Carlos Eduardo Lima', 'carlos.lima@hotmail.com', 'car123lim', '987.654.321-00', '(21) 99876-5432');
+INSERT INTO cliente (cliente_nome, cliente_email, cliente_senha, cliente_cpf, cliente_telefone)
+VALUES ('Mariana Souza', 'mariana.souza@yahoo.com', 'mari2025', '456.123.789-11', '(31) 91122-3344');
+INSERT INTO cliente (cliente_nome, cliente_email, cliente_senha, cliente_cpf, cliente_telefone)
+VALUES ('João Pedro Alves', 'joao.alves@outlook.com', 'joaoalv!', '321.789.654-22', '(41) 97766-5544');
+INSERT INTO cliente (cliente_nome, cliente_email, cliente_senha, cliente_cpf, cliente_telefone)
+VALUES ('Fernanda Rocha', 'fernanda.rocha@gmail.com', 'fern@123', '159.753.486-33', '(71) 96543-2109');
+
+INSERT INTO clienteendereco (id_endereco, id_cliente) VALUES (1, 1);
+INSERT INTO clienteendereco (id_endereco, id_cliente) VALUES (2, 2);
+INSERT INTO clienteendereco (id_endereco, id_cliente) VALUES (3, 3);
+INSERT INTO clienteendereco (id_endereco, id_cliente) VALUES (4, 4);
+INSERT INTO clienteendereco (id_endereco, id_cliente) VALUES (5, 5);
+
+INSERT INTO pedido (pedido_data, pedido_total, pedido_status, id_cliente) VALUES ('2025-07-01 14:30:00', 199.90, TRUE, 1);
+INSERT INTO pedido (pedido_data, pedido_total, pedido_status, id_cliente) VALUES ('2025-06-25 10:15:00', 89.50, FALSE, 2);
+INSERT INTO pedido (pedido_data, pedido_total, pedido_status, id_cliente) VALUES ('2025-06-28 16:45:00', 320.00, TRUE, 3);
+INSERT INTO pedido (pedido_data, pedido_total, pedido_status, id_cliente) VALUES ('2025-07-03 09:05:00', 49.99, TRUE, 4);
+INSERT INTO pedido (pedido_data, pedido_total, pedido_status, id_cliente) VALUES ('2025-06-30 18:20:00', 150.75, FALSE, 5);
+
+INSERT INTO itenspedido (itenspedido_quantidade, itenspedido_subtotal, id_produto, id_pedido) VALUES (2, 99.95, 1, 1);
+INSERT INTO itenspedido (itenspedido_quantidade, itenspedido_subtotal, id_produto, id_pedido) VALUES (1, 89.50, 2, 2);
+INSERT INTO itenspedido (itenspedido_quantidade, itenspedido_subtotal, id_produto, id_pedido) VALUES (4, 320.00, 3, 3);
+INSERT INTO itenspedido (itenspedido_quantidade, itenspedido_subtotal, id_produto, id_pedido) VALUES (1, 49.99, 4, 4);
+INSERT INTO itenspedido (itenspedido_quantidade, itenspedido_subtotal, id_produto, id_pedido) VALUES (3, 150.75, 5, 5);
+
+INSERT INTO entradaestoque (entradaestoque_quantidade, entradaestoque_data, id_produto, id_fornecedor) VALUES (10, '2025-07-01 09:30:00', 1, 1);
+INSERT INTO entradaestoque (entradaestoque_quantidade, entradaestoque_data, id_produto, id_fornecedor) VALUES (20, '2025-07-02 10:15:00', 2, 2);
+INSERT INTO entradaestoque (entradaestoque_quantidade, entradaestoque_data, id_produto, id_fornecedor) VALUES (15, '2025-07-03 11:00:00', 3, 3);
+INSERT INTO entradaestoque (entradaestoque_quantidade, entradaestoque_data, id_produto, id_fornecedor) VALUES (30, '2025-07-04 08:45:00', 4, 4);
+INSERT INTO entradaestoque (entradaestoque_quantidade, entradaestoque_data, id_produto, id_fornecedor) VALUES (25, '2025-07-05 14:20:00', 5, 5);
+
