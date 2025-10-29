@@ -1,0 +1,122 @@
+Grok: http://x.com/i/grok?conversation=1955712634516275603 
+
+Mermaid: https://mermaid.live / https://www.mermaidchart.com 
+
+
+erDiagram
+    Produto ||--o{ Categoria : pertence
+    Produto ||--o{ Unidades : mede
+    Produto ||--|| Estoque : controla
+    Produto ||--o{ NF-Entrada-Itens : contem
+    Produto ||--o{ Cupom-Fiscal-Itens : contem
+    Produto ||--o{ Devolucao : devolve
+    Categoria {
+        int ID_Categoria PK
+        string Nome
+        string Descrição
+    }
+    Unidades {
+        int ID_Unidade PK
+        string Nome
+    }
+    Produto {
+        int ID_Produto PK
+        string Nome
+        string Descrição
+        decimal Preço
+        string Código_Barras
+        int ID_Categoria FK
+        int ID_Unidade FK
+    }
+    Estoque {
+        int ID_Estoque PK
+        int ID_Produto FK
+        int Quantidade
+        date Data_Atualização
+    }
+    Fornecedor ||--o{ NF-Entrada : emite
+    Fornecedor {
+        int ID_Fornecedor PK
+        string Nome
+        string CNPJ
+        string Contato
+        string Endereço
+    }
+    NF-Entrada ||--o{ NF-Entrada-Itens : contem
+    NF-Entrada ||--o{ Contas-A-Pagar : gera
+    NF-Entrada {
+        int ID_NF_Entrada PK
+        int ID_Fornecedor FK
+        date Data_Emissão
+        decimal Valor_Total
+    }
+    NF-Entrada-Itens {
+        int ID_NF_Entrada_Itens PK
+        int ID_NF_Entrada FK
+        int ID_Produto FK
+        int Quantidade
+        decimal Valor_Unitario
+    }
+    Contas-A-Pagar ||--o{ Recebimento : pago_por
+    Contas-A-Pagar {
+        int ID_Conta PK
+        int ID_NF_Entrada FK
+        decimal Valor
+        date Data_Vencimento
+        string Status
+    }
+    Recebimento {
+        int ID_Recebimento PK
+        int ID_Conta FK
+        date Data
+        decimal Valor
+        string Forma_Pagamento
+    }
+    Cliente ||--o{ Cupom-Fiscal : realiza
+    Usuarios ||--o{ Cupom-Fiscal : emite
+    Cupom-Fiscal ||--o{ Cupom-Fiscal-Itens : contem
+    Cupom-Fiscal ||--o{ Devolucao : devolvido
+    Cliente {
+        int ID_Cliente PK
+        string Nome
+        string CPF
+        string Telefone
+        string Endereço
+    }
+    Usuarios {
+        int ID_Usuario PK
+        string Nome
+        string Login
+        string Senha
+        string Perfil
+    }
+    Cupom-Fiscal {
+        int ID_Cupom_Fiscal PK
+        int ID_Cliente FK
+        int ID_Usuario FK
+        date Data
+        decimal Valor_Total
+    }
+    Cupom-Fiscal-Itens {
+        int ID_Cupom_Fiscal_Itens PK
+        int ID_Cupom_Fiscal FK
+        int ID_Produto FK
+        int Quantidade
+        decimal Valor_Unitario
+    }
+    Devolucao {
+        int ID_Devolucao PK
+        int ID_Cupom_Fiscal FK
+        int ID_Produto FK
+        date Data
+        string Motivo
+        int Quantidade
+    }
+
+    
+
+
+
+
+
+
