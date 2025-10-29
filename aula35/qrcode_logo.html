@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerar QR Code com Logotipo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <!--A biblioteca QRious cria codigos QR como imagens (<canvas>), que podem ser inseridas diretamente em paginas web. Ela e leve,
+     baseada apenas em JavaScript puro, e roda completamente no lado do cliente -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    input, select {
+      padding: 10px;
+      width: 300px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+    canvas {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gerar QR Code com Logotipo</h1>
+
+  <input type="text" id="qrInput" placeholder="Digite o texto ou URL" /><br><br>
+
+  <!-- Seletor de cores do QR Code -->
+  <label>Cor do QR Code:</label>
+  <input type="color" id="qrColor" value="#000000"><br><br>
+
+  <!-- Seletor de cores do fundo -->
+  <label>Cor de fundo:</label>
+  <input type="color" id="bgColor" value="#ffffff"><br><br>
+
+  <!-- Inserir logotipo -->
+  <label>URL do logotipo (50x50px recomendado):</label>
+  <input type="text" id="logoUrl" placeholder="" /><br><br>
+
+  <button onclick="gerarQRCode()">Gerar QR Code</button>
+
+  <canvas id="qrCodeCanvas"></canvas>
+
+  <script>
+    function gerarQRCode() {
+      var qrInput = document.getElementById("qrInput").value;
+      var qrColor = document.getElementById("qrColor").value;
+      var bgColor = document.getElementById("bgColor").value;
+      var logoUrl = document.getElementById("logoUrl").value;
+
+      // Gerar o QR Code com as cores escolhidas
+      var qr = new QRious({
+        element: document.getElementById("qrCodeCanvas"),
+        value: qrInput,
+        size: 300,  // Tamanho do QR Code
+        foreground: qrColor,  // Cor dos blocos do QR Code
+        background: bgColor   // Cor de fundo
+      });
+
+      // Inserir o logotipo no centro do QR Code
+      if (logoUrl) {
+        var canvas = document.getElementById("qrCodeCanvas");
+        var ctx = canvas.getContext("2d");
+        var logo = new Image();
+        logo.src = logoUrl;
+        logo.onload = function () {
+          var logoSize = 50; // Tamanho do logotipo (50x50px)
+          var centerX = (canvas.width - logoSize) / 2;
+          var centerY = (canvas.height - logoSize) / 2;
+          ctx.drawImage(logo, centerX, centerY, logoSize, logoSize);
+        };
+      }
+    }
+  </script>
+</body>
+</html>

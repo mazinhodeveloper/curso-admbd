@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Consulta de CEP</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    function consultarCEP() {
+      var cep = document.getElementById('cep').value;
+      
+      // Verifica se o CEP possui apenas números
+      if (!cep.match(/^[0-9]+$/)) {
+        alert('O CEP deve conter apenas números.');
+        return;
+      }
+      
+      // Consulta o CEP no ViaCEP
+      $.getJSON('https://viacep.com.br/ws/' + cep + '/json/', function(data) {
+        if (!data.erro) {
+          document.getElementById('logradouro').value = data.logradouro;
+          document.getElementById('bairro').value = data.bairro;
+          document.getElementById('cidade').value = data.localidade;
+          document.getElementById('estado').value = data.uf;
+        } else {
+          alert('CEP não encontrado.');
+        }
+      });
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+  <h1>Consulta de CEP</h1>
+  
+  <form>
+    <label for="cep">CEP:</label>
+    <input type="text" id="cep" name="cep" maxlength="8" class="form-control" pattern="[0-9]{8}" onblur="consultarCEP()" required>
+    
+    <br>
+
+    <label for="logradouro" class="form-label">Logradouro:</label>
+    <input type="text" id="logradouro" class="form-control" name="logradouro" readonly>
+    
+    <br>
+
+    <label for="cep">Numero:</label>
+    <input type="text" id="numero" name="numero"  class="form-control" required>
+    
+    <br>
+
+    <label for="cep">Complemento:</label>
+    <input type="text" id="complemento" name="complemento"  class="form-control">
+    
+    <br>
+    
+
+    
+    <label for="bairro" class="form-label">Bairro:</label>
+    <input type="text" id="bairro" class="form-control" name="bairro" readonly>
+    
+    <br>
+    
+    <label for="cidade">Cidade:</label>
+    <input type="text" id="cidade" class="form-control" name="cidade" readonly>
+    
+    <br>
+    
+    <label for="estado">Estado:</label>
+    <input type="text" id="estado" class="form-control" name="estado" readonly>
+  </form>
+  </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</html>
