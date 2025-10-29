@@ -1,0 +1,15 @@
+body {
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+}
+h1, h2 {
+    margin-bottom: 20px;
+}
+.btn-add {
+    background-color: #00b4d8;
+    color: white;
+}
+
+.btn-add:hover {
+    background-color: #0077b6;
+}
