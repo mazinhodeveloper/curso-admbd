@@ -1,0 +1,32 @@
+Instalar 
+MySQL 
+
+
+
+
+Mysql 
+SHOW DATABASES; 
+CREATE DATABASE curso_AdmBD;
+
+USE curso_AdmBD;
+CREATE TABLE alunos; 
+
+
+-------
+
+SQL
+
+DDL - DML (DQL) - DCL 
+
+GRANT ALL privileges On escola TO root; # Dar Acesso 
+
+REVOKE; # Revogar acesso 
+
+CREATE USER 'novo'@'localhost' IDENTIFIED BY '123'; 
+CREATE DATABASE escola; 
+GRANT ALL PRIVILEGES ON escola.* TO 'novo'@'localhost'; 
+
+GRANT SELECT, INSERT, UPDATE ON escola.* TO 'novo'@'localhost'; 
+REVOKE SELECT, INSERT, UPDATE ON escola.* FROM 'novo'@'localhost'; 
+DROP USER 'novo'@'localhost'; 
+
