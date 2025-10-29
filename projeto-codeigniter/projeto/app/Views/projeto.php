@@ -1,0 +1,162 @@
+<!-- HEADER -->
+<?= view('templates/header'); ?>
+
+<!-- MAIN -->
+ <main>
+    <div class="heroe">
+        <section>
+            <h1>Projeto</h1>
+        </section>
+    </div>
+
+    <section>
+        <h2>Visão Geral do Projeto</h2>
+        <p>Este projeto tem como objetivo o desenvolvimento de um sistema de controle financeiro pessoal, com foco na organização e monitoramento de receitas, despesas, contas bancárias e cartões de crédito, bem como na elaboração de orçamento pessoal para confronto com as despesas reais.</p>
+        <p>A aplicação permitirá que os usuários registrem suas transações financeiras, categorizem-nas adequadamente, visualizem relatórios, e — opcionalmente — gere gráficos financeiros através de uma aplicação front-end.</p>
+        <h3>Metas e Objetivos:</h3>
+        <ul>
+            <li>Ajudar usuários a manterem controle sobre suas finanças pessoais;</li>
+            <li>Permitir visualização clara de gastos e rendimentos por mês e por categoria;</li>
+            <li>Oferecer uma estrutura de dados organizada e escalável em banco de dados para uso em aplicações web.</li>
+        </ul>
+    </section>
+
+    <div class="further">
+        <section>
+            <h2>Principais Partes Interessadas</h2>
+            <h3>Equipe de Desenvolvimento:</h3>
+            <ul>
+                <li>Administradores de Banco de Dados</li>
+                <li>Desenvolvedor Back-End</li>
+                <li>Desenvolvedor Front-End</li>
+            </ul>
+            <h3>Usuários Finais:</h3>
+            <ul>
+                <li>Pessoas físicas interessadas em controlar melhor suas finanças;</li>
+                <li>Estudantes e profissionais autônomos que não utilizam sistemas bancários complexos.</li>
+            </ul>
+            <h4>Outras Partes Interessadas:</h4>
+            <ul>
+                <li>Professores/orientadores.</li>
+            </ul>
+        </section>
+    </div>
+
+    <section>
+        <h2>Escopo do Projeto</h2>
+        <h3>Incluído:</h3>
+        <ul>
+            <li>Modelagem e criação das tabelas no banco de dados (Usuários, Categorias, Transações, Contas Bancárias, Cartões);</li>
+            <li>Registro de receitas e despesas;</li>
+            <li>Relatórios de saldo mensal e por categoria;</li>
+            <li>Geração de gráficos financeiros;</li>
+            <li>Funcionalidade opcional para importação de extratos bancários em formatos comuns (CSV, OFX).</li>
+        </ul>
+        <h4>Excluído:</h4>
+        <ul>
+            <li>Integrações com bancos reais ou APIs bancárias;</li>
+            <li>Funcionalidades de automação de transações;</li>
+            <li>Aplicativo mobile ou plataforma web completa (neste primeiro escopo);</li>
+            <li>Suporte a múltiplas moedas ou contas empresariais.</li>
+        </ul>
+    </section>
+
+    <div class="further">
+        <section>
+            <h2>Linha do Tempo</h2>
+            <h3>Etapa Período - Estimado</h3>
+            <ul>
+                <li>Planejamento e Levantamento, 1 semana</li>
+                <li>Modelagem de Dados, 0,5 semana</li>
+                <li>Criação do Banco de Dados, 0,5 semana</li>
+                <li>Desenvolvimento das funcionalidades, 1 semanas</li>
+                <li>Testes e Validação, 0,5 semana</li>
+                <li>Documentação e Entrega Final, 0,5 semana</li>
+            </ul>
+            <p>Duração total estimada: 4 semanas</p>
+        </section>
+    </div>
+
+    <section>
+        <h2>Recursos Necessários</h2>
+        <h3>Ferramentas:</h3>
+        <ul>
+            <li>Sistema de Gerenciamento de Banco de Dados (MySQL);</li>
+            <li>Ferramenta de modelagem (BrModelo);</li>
+            <li>Linguagem de programação (opcional: Python, C#, PHP);</li>
+            <li>Editor de código (VS Code, DBeaver).</li>
+        </ul>
+        <h4>Pessoal:</h4>
+        <ul>
+            <li>1 Desenvolvedor de Banco de Bados</li>
+            <li>1 Analista de Requisitos</li>
+            <li>1 Programador Full-Stack</li>
+        </ul>
+    </section>
+
+    <div class="further">
+        <section>
+            <h2>O Que Desenvolver</h2>
+            <ul>
+                <li>Modelo Relacional de Banco de Dados</li>
+                <li>Scripts SQL para criação de tabelas e inserção de dados</li>
+                <li>Consultas SQL para relatórios (saldo mensal e por categoria)</li>
+                <li>Triggers para inserção, atualização e deleção de dados</li>
+                <li>Procedimentos e/ou Views</li>
+                <li>Scripts de importação de extratos (opcional)</li>
+                <li>Documentação do banco de dados</li>
+            </ul>
+        </section>
+    </div>
+
+    <section>
+        <h2>Por Que Fazer Isso</h2>
+        <p>O controle financeiro é uma necessidade crescente, principalmente em tempos de instabilidade econômica. Muitas pessoas não têm acesso a ferramentas completas ou não confiam em aplicativos de terceiros para gerenciar suas finanças.</p>
+        <p>Este projeto resolve o problema de falta de controle e visibilidade das finanças pessoais, oferecendo uma estrutura segura, personalizável e com possibilidade de expansão.</p>
+    </section>
+
+    <div class="further">
+        <section>
+            <h2>Como Fazer</h2>
+            <h3>Metodologia:</h3>
+            <ul>
+                <li>Desenvolvimento incremental com entregas semanais;</li>
+                <li>Testes unitários nas consultas SQL;</li>
+                <li>Validação com dados simulados.</li>
+            </ul>
+            <h4>Tecnologias e Ferramentas:</h4>
+            <ul>
+                <li>Banco de Dados: MySQL</li>
+                <li>Modelagem: BrModelo</li>
+                <li>Visualização (opcional): Power BI ou Python</li>
+            </ul>
+        </section>
+    </div>
+
+    <section>
+        <h2>Para Quem Fazer Isso</h2>
+        <p>O sistema é direcionado para usuários finais que desejam organizar sua vida financeira, especialmente:</p>
+        <ul>
+            <li>Estudantes;</li>
+            <li>Profissionais autônomos;</li>
+            <li>Usuários de sistemas simples que não desejam vincular suas contas bancárias a grandes plataformas.</li>
+        </ul>
+    </section>
+
+    <div class="further">
+        <section>
+            <h2>Quando Fazer</h2>
+            <h3>Fase, Data Estimada</h3>
+            <ul>
+                <li>Início do Projeto, 21/07/2025</li>
+                <li>Conclusão da Modelagem, 08/09/2025</li>
+                <li>Implementação de Tabelas, 15/09/2025</li>
+                <li>Desenvolvimento de Consultas, 22/09/2025</li>
+                <li>Testes e Ajustes Finais, 29/09/2025</li>
+                <li>Entrega Final, 06/10/2025</li>
+        </section>
+    </div>
+</main>
+
+<!-- FOOTER: DEBUG INFO + COPYRIGHTS + SCRIPTS -->
+<?= view('templates/footer'); ?>
