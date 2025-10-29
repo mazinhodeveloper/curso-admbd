@@ -1,0 +1,641 @@
+<!-- HEADER -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Controle Financeiro Pessoal - Dicionário de Dados</title>
+    <meta name="description" content="The small framework with powerful features">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="assets/images/favicon.ico">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <!-- HEADER: MENU + HEROE SECTION -->
+    <header>
+        <div class="menu">
+            <ul>
+                <li class="logo">
+                    <a href="index.html">
+                        <img src="assets/images/logo-controle-financeiro.png" alt="Controle Financeiro" width="150" />
+                    </a>
+                </li>
+                <li class="menu-toggle">
+                    <button id="menuToggle">&#9776;</button>
+                </li>
+                <li class="menu-item hidden"><a href="index.html">Início</a></li>
+                <li class="menu-item hidden"><a href="projeto.html">Projeto</a></li>
+                <li class="menu-item hidden"><a href="dicionario-de-dados.html">Dicionário de Dados</a></li>
+                <li class="menu-item hidden"><a href="participantes.html">Participantes</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+        <div class="heroe">
+            <section>
+                <h1>Dicionário de Dados</h1>
+            </section>
+        </div>
+
+        <section>
+            <h2>Dicionário de Dados</h2>
+            <h3>Tabela: Usuario</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Coluna</th>
+                  <th>Tipo</th>
+                  <th>Restrição</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id_usuario</td>
+                  <td>int</td>
+                  <td>(PK) primary key, auto_increment</td>
+                  <td>Identificador único do usuário.</td>
+                </tr>
+                <tr>
+                  <td>usuario_nome</td>
+                  <td>varchar(120)</td>
+                  <td>not null</td>
+                  <td>Nome do usuário.</td>
+                </tr>
+                <tr>
+                  <td>usuario_email</td>
+                  <td>varchar(120)</td>
+                  <td>not null, unique</td>
+                  <td>Email de acesso do usuário.</td>
+                </tr>
+                <tr>
+                  <td>usuario_senha</td>
+                  <td>varchar(30)</td>
+                  <td>not null</td>
+                  <td>Senha de acesso do usuário.</td>
+                </tr>
+                <tr>
+                  <td>usuario_data_cadastro</td>
+                  <td>date</td>
+                  <td>not null</td>
+                  <td>Data de cadastro do usuário.</td>
+                </tr>
+              </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h3>Tabela: Categoria</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Coluna</th>
+                  <th>Tipo</th>
+                  <th>Restrição</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id_categoria</td>
+                  <td>int</td>
+                  <td>PK (primary key), auto_increment</td>
+                  <td>Identificador único da categoria.</td>
+                </tr>
+                <tr>
+                  <td>categoria_nome</td>
+                  <td>varchar(120)</td>
+                  <td>not null</td>
+                  <td>Nome da categoria.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_categoria</td>
+                  <td>int</td>
+                  <td>FK (foreign key), null</td>
+                  <td>Auto referência opcional ao id_categoria de uma categoria pai.</td>
+                </tr>
+              </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h3>Tabela: Cartao</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Coluna</th>
+                  <th>Tipo</th>
+                  <th>Restrição</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id_cartao</td>
+                  <td>int</td>
+                  <td>PK (primary key), auto_increment</td>
+                  <td>Identificador único do cartão.</td>
+                </tr>
+                <tr>
+                  <td>cartao_numero</td>
+                  <td>varchar(50)</td>
+                  <td>not null</td>
+                  <td>Número do cartão.</td>
+                </tr>
+                <tr>
+                  <td>cartao_validade</td>
+                  <td>date</td>
+                  <td>not null</td>
+                  <td>Validade do cartão.</td>
+                </tr>
+                <tr>
+                  <td>cartao_limite_credito</td>
+                  <td>decimal(10,2)</td>
+                  <td>not null</td>
+                  <td>Limite de crédito do cartão.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_usuario</td>
+                  <td>int</td>
+                  <td>FK (foreign key), not null</td>
+                  <td>Referência ao id_usuario da tabela Usuario.</td>
+                </tr>
+              </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h3>Tabela: Orcamento</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Coluna</th>
+                  <th>Tipo</th>
+                  <th>Restrição</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id_orcamento</td>
+                  <td>int</td>
+                  <td>PK (primary key), auto_increment</td>
+                  <td>Identificador único do orçamento.</td>
+                </tr>
+                <tr>
+                  <td>orcamento_descricao</td>
+                  <td>varchar(120)</td>
+                  <td>null</td>
+                  <td>Descrição breve opcional do orçamento.</td>
+                </tr>
+                <tr>
+                  <td>orcamento_periodo_inicio</td>
+                  <td>date</td>
+                  <td>not null</td>
+                  <td>Data inicial do período do orçamento.</td>
+                </tr>
+                <tr>
+                  <td>orcamento_periodo_fim</td>
+                  <td>date</td>
+                  <td>not null</td>
+                  <td>Data final do período do orçamento.</td>
+                </tr>
+                <tr>
+                  <td>orcamento_valor_planejado</td>
+                  <td>decimal(10,2)</td>
+                  <td>not null</td>
+                  <td>Valor total do plano de orçamento para o período especificado.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_usuario</td>
+                  <td>int</td>
+                  <td>FK (foreign key), not null</td>
+                  <td>Referência para id_usuario da tabela Usuario.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_categoria</td>
+                  <td>int</td>
+                  <td>FK (foreign key), not null</td>
+                  <td>Referência para id_categoria da tabela Categoria.</td>
+                </tr>
+              </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h3>Tabela: Conta</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Coluna</th>
+                  <th>Tipo</th>
+                  <th>Restrição</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id_conta</td>
+                  <td>int</td>
+                  <td>PK (primary key), auto_increment</td>
+                  <td>Identificador único da conta.</td>
+                </tr>
+                <tr>
+                  <td>conta_numero</td>
+                  <td>varchar(50)</td>
+                  <td>not null</td>
+                  <td>Número da conta.</td>
+                </tr>
+                <tr>
+                  <td>conta_tipo</td>
+                  <td>enum(‘corrente’, ’poupança’,’salario’)</td>
+                  <td>not null</td>
+                  <td>Tipo da conta.</td>
+                </tr>
+                <tr>
+                  <td>conta_saldo_atual</td>
+                  <td>decimal(10,2)</td>
+                  <td>not null</td>
+                  <td>Saldo atual da conta. Alterado conforme tabela Transacoes e PagamentoCartao.</td>
+                </tr>
+                <tr>
+                  <td>conta_banco</td>
+                  <td>varchar(50)</td>
+                  <td>not null</td>
+                  <td>Banco da conta.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_usuario</td>
+                  <td>int</td>
+                  <td>FK (foreign key), not null</td>
+                  <td>Referência para id_usuario da tabela Usuario.</td>
+                </tr>
+              </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h3>Tabela: StatusFatura</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Coluna</th>
+                  <th>Tipo</th>
+                  <th>Restrição</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id_status_faturas</td>
+                  <td>int</td>
+                  <td>PK (primary key), auto_increment</td>
+                  <td>Identificador único do status da fatura.</td>
+                </tr>
+                <tr>
+                  <td>status_fatura_nome</td>
+                  <td>enum(‘aberta’, ’fechada’,’atrasada’)</td>
+                  <td>not null</td>
+                  <td>Nome do status da fatura.</td>
+                </tr>
+              </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h3>Tabela: Fatura</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Coluna</th>
+                  <th>Tipo</th>
+                  <th>Restrição</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id_fatura</td>
+                  <td>int</td>
+                  <td>PK (primary key), auto_increment</td>
+                  <td>Identificador único da fatura.</td>
+                </tr>
+                <tr>
+                  <td>fatura_data_inicio</td>
+                  <td>date</td>
+                  <td>not null</td>
+                  <td>Data do início da fatura.</td>
+                </tr>
+                <tr>
+                  <td>fatura_data_fim</td>
+                  <td>date</td>
+                  <td>not null</td>
+                  <td>Data do final da fatura.</td>
+                </tr>
+                <tr>
+                  <td>fatura_valor_total</td>
+                  <td>decimal(10,2)</td>
+                  <td>not null, default 0</td>
+                  <td>Valor total dos gastos da fatura. Alterado conforme tabela Transacoes.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_cartao</td>
+                  <td>int</td>
+                  <td>not null</td>
+                  <td>Referência para id_cartao da tabela Cartao.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_status</td>
+                  <td>int</td>
+                  <td>not null</td>
+                  <td>Referência para id_status da tabela Status.</td>
+                </tr>
+              </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h3>Tabela: PagamentoFatura</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Coluna</th>
+                  <th>Tipo</th>
+                  <th>Restrição</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id_pagamento_fatura</td>
+                  <td>int</td>
+                  <td>PK (primary key), auto_increment</td>
+                  <td>Identificador único do pagamento da fatura.</td>
+                </tr>
+                <tr>
+                  <td>pagamento_fatura_data</td>
+                  <td>date</td>
+                  <td>not null</td>
+                  <td>Data do pagamento da fatura.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_conta</td>
+                  <td>int</td>
+                  <td>FK (foreign key), not null</td>
+                  <td>Referência para id_conta da tabela Conta.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_fatura</td>
+                  <td>int</td>
+                  <td>FK (foreign key)< not null</td>
+                  <td>Referência para id_fatura da tabela Fatura.</td>
+                </tr>
+              </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h3>Tabela: Operacao</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Coluna</th>
+                  <th>Tipo</th>
+                  <th>Restrição</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id_operacao</td>
+                  <td>int</td>
+                  <td>PK (primary key), auto_increment</td>
+                  <td>Identificador único da operação.</td>
+                </tr>
+                <tr>
+                  <td>operacao_nome</td>
+                  <td>enum(‘conta/saida’, ’conta/entrada’, ’fatura/saida’)</td>
+                  <td>not null</td>
+                  <td>Nome da operação.</td>
+                </tr>
+                <tr>
+                  <td>fk_conta_fatura</td>
+                  <td>int</td>
+                  <td>FK (foreign key), not null</td>
+                  <td>Referência para id_conta da tabela Conta OU id_fatura da tabela Fatura. Depende da operacao_nome.</td>
+                </tr>
+              </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h3>Tabela: Transacao</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Coluna</th>
+                  <th>Tipo</th>
+                  <th>Restrição</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>id_transacao</td>
+                  <td>int</td>
+                  <td>PK (primary key), auto_increment</td>
+                  <td>Identificador único da transação.</td>
+                </tr>
+                <tr>
+                  <td>transacao_valor</td>
+                  <td>decimal(10,2)</td>
+                  <td>not null</td>
+                  <td>Valor da transação.</td>
+                </tr>
+                <tr>
+                  <td>transacao_data</td>
+                  <td>date</td>
+                  <td>not null</td>
+                  <td>Data da transação.</td>
+                </tr>
+                <tr>
+                  <td>transacao_descricao</td>
+                  <td>varchar(120)</td>
+                  <td>null</td>
+                  <td>Descrição opcional da transação.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_categoria</td>
+                  <td>int</td>
+                  <td>FK (foreign key), not null</td>
+                  <td>Referência para id_categoria da tabela Categoria.</td>
+                </tr>
+                <tr>
+                  <td>fk_id_operacao</td>
+                  <td>int</td>
+                  <td>FK (foreign key), not null</td>
+                  <td>Referência para id_operacao da tabela Operacao.</td>
+                </tr>
+              </tbody>
+            </table>
+        </section>
+
+        <section>
+            <hr>
+            <h2>Modelo Entidade-Relacionamento (MER)</h2>
+            <h3>O Modelo Entidade-Relacionamento (MER) detalha as entidades, atributos e relacionamentos:</h3>
+            <h4>Descrição textual do MER:</h4>
+            <p>
+              <ul>
+                <li>Usuario (id_usuario, usuario_nome, usuario_email, usuario_senha, usuario_data_cadastro)</li>
+                <li>Cartao (id_cartao, cartao_numero, cartao_validade, cartao_limite_credito)</li>
+                <li>Conta (id_conta, conta_numero, conta_saldo_atual, conta_tipo, conta_banco)</li>
+                <li>Orcamento (id_orcamento, orcamento_descricao, orcamento_periodo_inicio, orcamento_periodo_fim, orcamento_valor_planejado)</li>
+                <li>Fatura (id_fatura, fatura_data_inicio, fatura_data_fim, fatura_valor_total)</li>
+                <li>StatusFatura (id_status_fatura, status_fatura_nome)</li>
+                <li>PagamentoFatura (id_pagamento_fatura, pagamento_fatura_data)</li>
+                <li>Operacao (id_operacao, operacao_nome)</li>
+                <li>Categoria (id_categoria, categoria_nome)</li>
+                <li>Transacao (id_transacao, transacao_descricao, transacao_valor, transacao_data)</li>
+              </ul>
+            </p>
+            <h4>Relacionamentos:</h4>
+            <p>
+              <ul>
+                <li>Usuario (1) <-> (N) Cartao</li>
+                <li>Usuario (1) <-> (N) Conta</li>
+                <li>Usuario (1) <-> (N) Orcamento</li>
+                <li>Categoria (1) <-> (N) Orcamento</li>
+                <li>Categoria (1) <-> (N) Transacao</li>
+                <li>Cartao (1) <-> (N) Fatura</li>
+                <li>Conta (1) <-> (N) PagamentoFatura</li>
+                <li>Conta (1) <-> (N) Operacao</li>
+                <li>Fatura (1) <-> (N) Operacao</li>
+                <li>Fatura (1) <-> (1) PagamentoFatura</li>
+                <li>Fatura (1) <-> (1) StatusFatura</li>
+                <li>Operacao (1) <-> (1) Transacao</li>
+                <li>Categoria (1) <-> (N) CategoriaFilha</li>
+              </ul>
+            </p>
+            <h3>Representação Gráfica do MER</h3>
+            <img src="assets/images/modelo-conceitual.png" title="Modelo Conceitual" width="100%" />
+        </section>
+
+        <section>
+            <hr>
+            <h2>Diagrama de Entidade-Relacionamento (DER)</h2>
+            <h3>O Diagrama de Entidade-Relacionamento (DER) é uma representação gráfica lógica do MER.</h3>
+            <p>
+              <ul>
+                <li>Usuario:
+                  <ul>
+                    <li>PK: id_usuario</li>
+                    <li>Atributos: usuario_nome, usuario_email, usuario_senha, usuario_data_cadastro</li>
+                  </ul>
+                </li>
+                <li>Cartao:
+                  <ul>
+                    <li>PK: id_cartao</li>
+                    <li>FK: fk_id_usuario -> Usuario.id_usuario</li>
+                    <li>Atributos: cartao_numero, cartao_validade, cartao_limite_credito</li>
+                  </ul>
+                </li>
+                <li>Conta:
+                  <ul>
+                    <li>PK: id_conta</li>
+                    <li>FK: fk_id_usuario -> Usuario.id_usuario</li>
+                    <li>Atributos: conta_numero, conta_tipo, conta_saldo_atual, conta_banco</li>
+                  </ul>
+                </li>
+                <li>Orcamento:
+                  <ul>
+                    <li>PK: id_orcamento</li>
+                    <li>FK: fk_id_usuario -> Usuario.id_usuario</li>
+                    <li>FK: fk_id_categoria -> Categoria.id_categoria</li>
+                    <li>Atributos: orcamento_descricao, orcamento_periodo_inicio, orcamento_periodo_fim, orcamento_valor_planejado</li>
+                  </ul>
+                </li>
+                <li>Fatura:
+                  <ul>
+                    <li>PK: id_fatura</li>
+                    <li>FK: fk_id_status -> StatusFatura.id_status_fatura</li>
+                    <li>FK: fk_id_cartao -> Cartao.id_cartao</li>
+                    <li>Atributos: fatura_data_inicio, fatura_data_fim, fatura_valor_total</li>
+                  </ul>
+                </li>
+                <li>StatusFatura:
+                  <ul>
+                    <li>PK: id_status_fatura</li>
+                    <li>Atributos: status_fatura_nome</li>
+                  </ul>
+                </li>
+                <li>PagamentoFatura:
+                  <ul>
+                    <li>PK: id_pagamento_fatura</li>
+                    <li>FK: fk_id_cartao -> Cartao.id_cartao</li>
+                    <li>FK: fk_id_conta -> Conta.id_conta</li>
+                    <li>Atributos: pagamento_fatura_data</li>
+                  </ul>
+                </li>
+                <li>Operacao:
+                  <ul>
+                    <li>PK: id_operacao</li>
+                    <li>FK: id_conta_fatura
+                      <ul>
+                        <li>-> Conta.id_conta<br> ou</li>
+                        <li>-> Fatura.id_fatura​</li>
+                      </ul>
+                    </li>
+                    <li>Atributos: operacao_nome</li>
+                  </ul>
+                </li>
+                <li>Categoria:
+                  <ul>
+                    <li>PK: id_categoria</li>
+                    <li>FK: fk_categoria_pai -> Categoria.id_categoria</li>
+                    <li>Atributos: categoria_nome</li>
+                  </ul>
+                </li>
+                <li>
+                  Transacao:
+                  <ul>
+                    <li>PK: id_transacao</li>
+                    <li>FK: fk_id_categoria -> Categoria.id_categoria</li>
+                    <li>FK: fk_id_operacao -> Operacao.id_operacao</li>
+                    <li>Atributos: transacao_valor, transacao_data, transacao_descricao</li>
+                  </ul>
+                </li>
+              </ul>
+            </p>
+            <img src="assets/images/modelo-logico.png" title="Modelo Lógico" width="100%" />
+        </section>
+        
+        <section>
+            <hr>
+            <h2>Material Adicional</h2>
+            <ul>
+                <li>PDF: <a href="assets/arquivos/Sistema-de-Controle-Financeiro-Pessoal-Dicionario-de-Dados.pdf" target="_blank">Dicionário de Dados</a></li>
+            </ul>
+        </section>
+    </main>
+                        
+    <!-- FOOTER: DEBUG INFO + COPYRIGHTS + SCRIPTS -->
+    <footer>
+        <div class="environment">
+            <a href="index.html">Início</a> 
+            <a href="projeto.html">Projeto</a> 
+            <a href="dicionario-de-dados.html">Dicionário de Dados</a> 
+            <a href="participantes.html">Participantes</a>
+        </div>
+        <div class="copyrights">
+            <p>&copy; 2025 Sistema de Controle Financeiro Pessoal</p>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="assets/js/scripts.js"></script>
+
+</body>
+</html>

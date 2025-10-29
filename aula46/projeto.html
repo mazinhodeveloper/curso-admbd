@@ -1,0 +1,943 @@
+<!-- HEADER -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Controle Financeiro Pessoal - Projeto</title>
+    <meta name="description" content="The small framework with powerful features">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="assets/images/favicon.ico">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <!-- HEADER: MENU + HEROE SECTION -->
+    <header>
+        <div class="menu">
+            <ul>
+                <li class="logo">
+                    <a href="index.html">
+                        <img src="assets/images/logo-controle-financeiro.png" alt="Controle Financeiro" width="150" />
+                    </a>
+                </li>
+                <li class="menu-toggle">
+                    <button id="menuToggle">&#9776;</button>
+                </li>
+                <li class="menu-item hidden"><a href="index.html">Início</a></li>
+                <li class="menu-item hidden"><a href="projeto.html">Projeto</a></li>
+                <li class="menu-item hidden"><a href="dicionario-de-dados.html">Dicionário de Dados</a></li>
+                <li class="menu-item hidden"><a href="participantes.html">Participantes</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+        <div class="heroe">
+            <section>
+                <h1>Projeto</h1>
+            </section>
+        </div>
+
+        <section>
+            <h2>Diagrama de Entidade Relacionamento - DER</h2>
+            <h3>Representação Gráfica do MER</h3>
+            <div class="container-half">
+                <div class="half">
+                    <h4>Modelo Conceitual</h4> 
+                    <span class="image-link" data-modal="modal1">
+                        <img src="assets/images/modelo-conceitual.png" title="Modelo Conceitual" width="100%" />
+                    </span> 
+                </div>
+                <div class="half">
+                    <h4>Modelo Lógico</h4>
+                    <span class="image-link" data-modal="modal2">
+                        <img src="assets/images/modelo-logico.png" title="Modelo Lógico" width="100%" />
+                    </span> 
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3>Configuração Inicial</h3>
+            <p>
+                Configurações iniciais do banco de dados. <br>
+                <code>
+                    <pre>
+SET sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Banco de Dados</h3>
+            <p>
+                DROP DATABASE IF EXISTS, deleta o banco de dados se existir. CREATE DATABASE, cria o banco de dados. USE, usa o banco de dados. <br>
+                <code>
+                    <pre>
+DROP DATABASE IF EXISTS financeiro;
+CREATE DATABASE financeiro;
+USE financeiro;</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Tabelas</h3>
+            <p>
+                CREATE TABLE, cria as tabelas do banco de dados. <br>
+                <code>
+                    <pre>
+
+-- Usuário
+CREATE TABLE usuario (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_nome VARCHAR(120) NOT NULL,
+    usuario_email VARCHAR(120) NOT NULL UNIQUE,
+    usuario_senha VARCHAR(255) NOT NULL,
+    usuario_data_cadastro DATE NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Categoria
+CREATE TABLE categoria (
+    id_categoria INT AUTO_INCREMENT PRIMARY KEY,
+    categoria_nome VARCHAR(120) NOT NULL,
+    fk_id_categoria INT NULL,
+    CONSTRAINT fk_categoria_pai FOREIGN KEY (fk_id_categoria) REFERENCES categoria(id_categoria)
+        ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Cartão
+CREATE TABLE cartao (
+    id_cartao INT AUTO_INCREMENT PRIMARY KEY,
+    cartao_numero VARCHAR(50) NOT NULL,
+    cartao_validade DATE NOT NULL,
+    cartao_limite_credito DECIMAL(10,2) NOT NULL,
+    fk_id_usuario INT NOT NULL,
+    CONSTRAINT fk_cartao_usuario FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario),
+    CONSTRAINT chk_limite_credito_positivo CHECK (cartao_limite_credito >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Conta
+CREATE TABLE conta (
+    id_conta INT AUTO_INCREMENT PRIMARY KEY,
+    conta_numero VARCHAR(50) NOT NULL,
+    conta_tipo ENUM('corrente','poupanca','salario') NOT NULL,
+    conta_saldo_atual DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    conta_banco VARCHAR(50) NOT NULL,
+    fk_id_usuario INT NOT NULL,
+    CONSTRAINT fk_conta_usuario FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Status de Fatura
+CREATE TABLE status_fatura (
+    id_status_fatura INT AUTO_INCREMENT PRIMARY KEY,
+    status_fatura_nome ENUM('aberta','fechada','atrasada') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Fatura
+CREATE TABLE fatura (
+    id_fatura INT AUTO_INCREMENT PRIMARY KEY,
+    fatura_data_inicio DATE NOT NULL,
+    fatura_data_fim DATE NOT NULL,
+    fatura_valor_total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    fk_id_cartao INT NOT NULL,
+    fk_id_status INT NOT NULL,
+    CONSTRAINT fk_fatura_cartao FOREIGN KEY (fk_id_cartao) REFERENCES cartao(id_cartao),
+    CONSTRAINT fk_fatura_status FOREIGN KEY (fk_id_status) REFERENCES status_fatura(id_status_fatura),
+    CONSTRAINT chk_fatura_period CHECK (fatura_data_fim >= fatura_data_inicio)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Orçamento
+CREATE TABLE orcamento (
+    id_orcamento INT AUTO_INCREMENT PRIMARY KEY,
+    orcamento_descricao VARCHAR(120) NULL,
+    orcamento_periodo_inicio DATE NOT NULL,
+    orcamento_periodo_fim DATE NOT NULL,
+    orcamento_valor_planejado DECIMAL(10,2) NOT NULL,
+    orcamento_valor_usado DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    fk_id_usuario INT NOT NULL,
+    fk_id_categoria INT NOT NULL,
+    CONSTRAINT fk_orcamento_usuario FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario),
+    CONSTRAINT fk_orcamento_categoria FOREIGN KEY (fk_id_categoria) REFERENCES categoria(id_categoria),
+    CONSTRAINT chk_orcamento_period CHECK (orcamento_periodo_fim >= orcamento_periodo_inicio)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Pagamento de Fatura
+CREATE TABLE pagamento_fatura (
+    id_pagamento_fatura INT AUTO_INCREMENT PRIMARY KEY,
+    pagamento_fatura_data DATE NOT NULL,
+    fk_id_conta INT NOT NULL,
+    fk_id_fatura INT NOT NULL,
+    CONSTRAINT fk_pagamentofatura_conta FOREIGN KEY (fk_id_conta) REFERENCES conta(id_conta),
+    CONSTRAINT fk_pagamentofatura_fatura FOREIGN KEY (fk_id_fatura) REFERENCES fatura(id_fatura)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Operação
+CREATE TABLE operacao (
+    id_operacao INT AUTO_INCREMENT PRIMARY KEY,
+    operacao_nome ENUM('conta_saida','conta_entrada','fatura_saida') NOT NULL,
+    fk_id_conta INT NULL,
+    fk_id_fatura INT NULL,
+    CONSTRAINT fk_operacao_conta FOREIGN KEY (fk_id_conta) REFERENCES conta(id_conta),
+    CONSTRAINT fk_operacao_fatura FOREIGN KEY (fk_id_fatura) REFERENCES fatura(id_fatura),
+    CONSTRAINT chk_operacao_target CHECK (
+        (fk_id_conta IS NOT NULL AND fk_id_fatura IS NULL) OR
+        (fk_id_conta IS NULL AND fk_id_fatura IS NOT NULL)
+    )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Transação
+CREATE TABLE transacao (
+    id_transacao INT AUTO_INCREMENT PRIMARY KEY,
+    transacao_valor DECIMAL(10,2) NOT NULL,
+    transacao_data DATE NOT NULL,
+    transacao_descricao VARCHAR(120) NULL,
+    fk_id_categoria INT NOT NULL,
+    fk_id_operacao INT NOT NULL,
+    CONSTRAINT fk_transacao_categoria FOREIGN KEY (fk_id_categoria) REFERENCES categoria(id_categoria),
+    CONSTRAINT fk_transacao_operacao FOREIGN KEY (fk_id_operacao) REFERENCES operacao(id_operacao),
+    CONSTRAINT chk_transacao_valor_positivo CHECK (transacao_valor > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+SET FOREIGN_KEY_CHECKS = 1;</pre>
+                </code>
+            </p>
+        </section>
+
+        <section>
+            <h3>Triggers</h3>
+            <p>
+                TRIGGERS, triggers são gatilhos. <br>
+                <code>
+                    <pre>
+DELIMITER $$
+-- -------------------------------------------------------
+-- 1. BEFORE INSERT em pagamento_fatura
+-- Bloqueia pagamento se fatura estiver fechada
+CREATE TRIGGER trg_check_pagamento_fatura
+BEFORE INSERT ON pagamento_fatura
+FOR EACH ROW
+BEGIN
+    DECLARE v_status VARCHAR(20);
+
+    SELECT s.status_fatura_nome
+    INTO v_status
+    FROM fatura f
+    JOIN status_fatura s ON f.fk_id_status = s.id_status_fatura
+    WHERE f.id_fatura = NEW.fk_id_fatura;
+
+    IF v_status = 'fechada' THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Pagamento não permitido: fatura já está fechada.';
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+-- 2. Checa limite do cartão antes de efetuar transação
+CREATE TRIGGER trg_check_limite_cartao
+BEFORE INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_tipo ENUM('conta_entrada','conta_saida','fatura_saida');
+    DECLARE v_id_fatura INT;
+    DECLARE v_id_cartao INT;
+    DECLARE v_limite DECIMAL(12,2);
+    DECLARE v_total DECIMAL(12,2);
+
+    -- Descobre o tipo da operação e a fatura (se existir)
+    SELECT operacao_nome, fk_id_fatura
+    INTO v_tipo, v_id_fatura
+    FROM operacao
+    WHERE id_operacao = NEW.fk_id_operacao;
+
+    -- Só valida se for fatura_saida
+    IF v_tipo = 'fatura_saida' THEN
+        -- Pega o cartão da fatura
+        SELECT fk_id_cartao INTO v_id_cartao
+        FROM fatura
+        WHERE id_fatura = v_id_fatura;
+
+        -- Busca limite do cartão
+        SELECT cartao_limite_credito INTO v_limite
+        FROM cartao
+        WHERE id_cartao = v_id_cartao;
+
+        -- Calcula valor total já lançado em faturas abertas desse cartão
+        SELECT IFNULL(SUM(fatura_valor_total),0)
+        INTO v_total
+        FROM fatura f
+        JOIN status_fatura s ON f.fk_id_status = s.id_status_fatura
+        WHERE f.fk_id_cartao = v_id_cartao
+          AND s.status_fatura_nome = 'aberta';
+
+        -- Se exceder limite, cancela o insert
+        IF (v_total + NEW.transacao_valor) > v_limite THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Transação negada: limite de crédito do cartão excedido.';
+        END IF;
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+-- 3. BEFORE INSERT em transacao - bloqueia fatura fechada/atrasada
+CREATE TRIGGER trg_check_fatura_status
+BEFORE INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_tipo ENUM('conta_entrada','conta_saida','fatura_saida');
+    DECLARE v_id_fatura INT;
+    DECLARE v_status VARCHAR(20);
+
+    SELECT operacao_nome, fk_id_fatura
+    INTO v_tipo, v_id_fatura
+    FROM operacao
+    WHERE id_operacao = NEW.fk_id_operacao;
+
+    IF v_tipo = 'fatura_saida' THEN
+        SELECT s.status_fatura_nome
+        INTO v_status
+        FROM fatura f
+        JOIN status_fatura s ON f.fk_id_status = s.id_status_fatura
+        WHERE f.id_fatura = v_id_fatura;
+
+        IF v_status IN ('fechada','atrasada') THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Não é permitido inserir transação em fatura fechada ou atrasada.';
+        END IF;
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+-- 4. AFTER INSERT em transacao - atualiza conta ou fatura
+CREATE TRIGGER trg_transacao_update
+AFTER INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_tipo ENUM('conta_entrada','conta_saida','fatura_saida');
+    DECLARE v_id_conta INT;
+    DECLARE v_id_fatura INT;
+
+    SELECT operacao_nome, fk_id_conta, fk_id_fatura
+    INTO v_tipo, v_id_conta, v_id_fatura
+    FROM operacao
+    WHERE id_operacao = NEW.fk_id_operacao;
+
+    IF v_tipo = 'conta_entrada' THEN
+        UPDATE conta SET conta_saldo_atual = conta_saldo_atual + NEW.transacao_valor
+        WHERE id_conta = v_id_conta;
+    ELSEIF v_tipo = 'conta_saida' THEN
+        UPDATE conta SET conta_saldo_atual = conta_saldo_atual - NEW.transacao_valor
+        WHERE id_conta = v_id_conta;
+    END IF;
+
+    IF v_tipo = 'fatura_saida' THEN
+        UPDATE fatura SET fatura_valor_total = fatura_valor_total + NEW.transacao_valor
+        WHERE id_fatura = v_id_fatura;
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+-- 5. AFTER INSERT em pagamento_fatura - debita conta e fecha fatura
+CREATE TRIGGER trg_pagamento_fatura
+AFTER INSERT ON pagamento_fatura
+FOR EACH ROW
+BEGIN
+    DECLARE v_valor DECIMAL(12,2);
+
+    SELECT fatura_valor_total
+    INTO v_valor
+    FROM fatura
+    WHERE id_fatura = NEW.fk_id_fatura;
+
+    UPDATE conta
+    SET conta_saldo_atual = conta_saldo_atual - v_valor
+    WHERE id_conta = NEW.fk_id_conta;
+
+    UPDATE fatura
+    SET fk_id_status = (SELECT id_status_fatura FROM status_fatura WHERE status_fatura_nome='fechada')
+    WHERE id_fatura = NEW.fk_id_fatura;
+END$$
+
+-- -------------------------------------------------------
+-- 6. Pagamento de Fatura, checando saldo conta (usando a FUNCTION fn_verifica_saldo_suficiente)
+CREATE TRIGGER trg_valida_saldo_pagamento_fatura
+BEFORE INSERT ON pagamento_fatura
+FOR EACH ROW
+BEGIN
+    DECLARE v_valor_fatura DECIMAL(10,2);
+
+    -- Pega o valor da fatura que está sendo paga
+    SELECT fatura_valor_total INTO v_valor_fatura
+    FROM fatura WHERE id_fatura = NEW.fk_id_fatura;
+
+    -- CHAMA A FUNÇÃO CENTRAL: Se a função retornar FALSE (saldo insuficiente), bloqueia a operação
+    IF NOT fn_verifica_saldo_suficiente(NEW.fk_id_conta, v_valor_fatura) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Saldo insuficiente para pagar o valor total da fatura.';
+    END IF;
+END$$
+
+-- -------------------------------------------------------
+-- 7. Débito em Conta, checando saldo conta (usando a FUNCTION fn_verifica_saldo_suficiente)
+CREATE TRIGGER trg_valida_saldo_debito_conta
+BEFORE INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_operacao_nome VARCHAR(20);
+    DECLARE v_id_conta INT;
+
+    SELECT operacao_nome, fk_id_conta INTO v_operacao_nome, v_id_conta
+    FROM operacao WHERE id_operacao = NEW.fk_id_operacao;
+
+    -- Apenas continua se for uma saída de conta
+    IF v_operacao_nome = 'conta_saida' THEN
+        -- CHAMA A FUNÇÃO CENTRAL: Se a função retornar FALSE (saldo insuficiente), bloqueia a operação
+        IF NOT fn_verifica_saldo_suficiente(v_id_conta, NEW.transacao_valor) THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Saldo insuficiente para realizar a transação de débito.';
+        END IF;
+    END IF;
+END$$
+
+
+-- 8. Atualizar o Orçamento
+-- A cada nova transação de despesa, encontra o orçamento correspondente do usuário para aquela categoria e período
+CREATE TRIGGER trg_atualiza_orcamento_usado
+AFTER INSERT ON transacao
+FOR EACH ROW
+BEGIN
+    DECLARE v_id_usuario INT;
+    DECLARE v_operacao_nome VARCHAR(20);
+
+    -- Primeiro, identifica o tipo de operação
+    SELECT operacao_nome INTO v_operacao_nome
+    FROM operacao WHERE id_operacao = NEW.fk_id_operacao;
+
+    -- IMPORTANTE! A trigger só deve rodar para despesas (saídas)
+    IF v_operacao_nome = 'conta_saida' OR v_operacao_nome = 'fatura_saida' THEN
+
+        -- Encontra o ID do usuário através da operação
+        SELECT COALESCE(c.fk_id_usuario, ca.fk_id_usuario) INTO v_id_usuario
+        FROM operacao AS op
+        LEFT JOIN conta AS c ON op.fk_id_conta = c.id_conta
+        LEFT JOIN fatura AS f ON op.fk_id_fatura = f.id_fatura
+        LEFT JOIN cartao AS ca ON f.fk_id_cartao = ca.id_cartao
+        WHERE op.id_operacao = NEW.fk_id_operacao;
+
+        -- Se encontrou um usuário, atualiza o orçamento correspondente
+        IF v_id_usuario IS NOT NULL THEN
+            UPDATE orcamento
+            SET orcamento_valor_usado = orcamento_valor_usado + NEW.transacao_valor
+            WHERE 
+                fk_id_usuario = v_id_usuario AND
+                fk_id_categoria = NEW.fk_id_categoria AND
+                NEW.transacao_data BETWEEN orcamento_periodo_inicio AND orcamento_periodo_fim;
+        END IF;
+    END IF;
+END$$
+
+DELIMITER ;</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Views</h3>
+            <p>
+                Visualizações. <br>
+                <code>
+                    <pre>
+-- ================================
+CREATE OR REPLACE VIEW vw_extrato_conta AS
+SELECT c.id_conta, c.conta_numero, t.id_transacao, t.transacao_data,
+       t.transacao_valor, t.transacao_descricao, o.operacao_nome,
+       cat.categoria_nome,
+       CASE WHEN o.operacao_nome='conta_saida' THEN -t.transacao_valor
+            WHEN o.operacao_nome='conta_entrada' THEN t.transacao_valor
+            ELSE 0 END AS impacto_saldo
+FROM transacao t
+JOIN operacao o ON t.fk_id_operacao = o.id_operacao
+LEFT JOIN conta c ON o.fk_id_conta = c.id_conta
+LEFT JOIN categoria cat ON t.fk_id_categoria = cat.id_categoria;
+
+CREATE OR REPLACE VIEW vw_resumo_mensal_categoria AS
+SELECT u.id_usuario, cat.id_categoria, cat.categoria_nome,
+       YEAR(t.transacao_data) AS ano, MONTH(t.transacao_data) AS mes,
+       SUM(t.transacao_valor) AS total_categoria
+FROM transacao t
+JOIN categoria cat ON t.fk_id_categoria = cat.id_categoria
+JOIN operacao o ON t.fk_id_operacao = o.id_operacao
+LEFT JOIN conta c ON o.fk_id_conta = c.id_conta
+LEFT JOIN usuario u ON c.fk_id_usuario = u.id_usuario
+GROUP BY u.id_usuario, cat.id_categoria, ano, mes;
+
+CREATE OR REPLACE VIEW vw_orcamento_vs_realizado AS
+SELECT o.id_orcamento, u.id_usuario, cat.categoria_nome,
+       o.orcamento_periodo_inicio, o.orcamento_periodo_fim,
+       o.orcamento_valor_planejado, o.orcamento_valor_usado,
+       ROUND((o.orcamento_valor_usado / o.orcamento_valor_planejado) * 100, 2) AS percentual_utilizado
+FROM orcamento o
+JOIN usuario u ON o.fk_id_usuario = u.id_usuario
+JOIN categoria cat ON o.fk_id_categoria = cat.id_categoria;
+
+CREATE OR REPLACE VIEW vw_faturas_em_aberto AS
+SELECT f.id_fatura, u.id_usuario, c.cartao_numero,
+       f.fatura_data_inicio, f.fatura_data_fim,
+       f.fatura_valor_total, s.status_fatura_nome
+FROM fatura f
+JOIN cartao c ON f.fk_id_cartao = c.id_cartao
+JOIN usuario u ON c.fk_id_usuario = u.id_usuario
+JOIN status_fatura s ON f.fk_id_status = s.id_status_fatura
+WHERE s.status_fatura_nome IN ('aberta','atrasada');</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Functions</h3>
+            <p>
+                Funções. <br>
+                <code>
+                    <pre>
+DELIMITER $$
+
+CREATE FUNCTION fn_saldo_usuario(p_usuario INT)
+RETURNS DECIMAL(12,2)
+DETERMINISTIC
+BEGIN
+    DECLARE v_saldo DECIMAL(12,2);
+    SELECT SUM(conta_saldo_atual) INTO v_saldo
+    FROM conta WHERE fk_id_usuario = p_usuario;
+    RETURN IFNULL(v_saldo,0.00);
+END$$
+
+CREATE FUNCTION fn_percentual_orcamento(p_id_orcamento INT)
+RETURNS DECIMAL(5,2)
+DETERMINISTIC
+BEGIN
+    DECLARE v_planejado DECIMAL(12,2);
+    DECLARE v_usado DECIMAL(12,2);
+    SELECT orcamento_valor_planejado, orcamento_valor_usado
+    INTO v_planejado, v_usado FROM orcamento WHERE id_orcamento = p_id_orcamento;
+    RETURN IFNULL((v_usado/v_planejado)*100,0);
+END$$
+
+DELIMITER ;</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Stored Procedures</h3>
+            <p>
+                Stored Procedures. <br>
+                <code>
+                    <pre>
+DELIMITER $$
+
+CREATE PROCEDURE sp_fechar_fatura(IN p_id_fatura INT)
+BEGIN
+    DECLARE v_status_aberta INT;
+    DECLARE v_status_fechada INT;
+    SELECT id_status_fatura INTO v_status_aberta FROM status_fatura WHERE status_fatura_nome='aberta';
+    SELECT id_status_fatura INTO v_status_fechada FROM status_fatura WHERE status_fatura_nome='fechada';
+    IF (SELECT fk_id_status FROM fatura WHERE id_fatura=p_id_fatura)=v_status_aberta THEN
+        UPDATE fatura SET fk_id_status=v_status_fechada WHERE id_fatura=p_id_fatura;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Fatura não está aberta';
+    END IF;
+END$$
+
+CREATE PROCEDURE sp_relatorio_usuario(IN p_id_usuario INT, IN p_data_inicio DATE, IN p_data_fim DATE)
+BEGIN
+    -- saldo total
+    SELECT fn_saldo_usuario(p_id_usuario) AS saldo_total;
+
+    -- resumo categorias
+    SELECT cat.categoria_nome, SUM(t.transacao_valor) AS total_categoria
+    FROM transacao t
+    JOIN categoria cat ON t.fk_id_categoria=cat.id_categoria
+    JOIN operacao o ON t.fk_id_operacao=o.id_operacao
+    LEFT JOIN conta c ON o.fk_id_conta=c.id_conta
+    WHERE c.fk_id_usuario=p_id_usuario AND t.transacao_data BETWEEN p_data_inicio AND p_data_fim
+    GROUP BY cat.categoria_nome;
+
+    -- faturas
+    SELECT f.id_fatura, f.fatura_data_inicio, f.fatura_data_fim, f.fatura_valor_total, s.status_fatura_nome
+    FROM fatura f
+    JOIN cartao ca ON f.fk_id_cartao=ca.id_cartao
+    JOIN status_fatura s ON f.fk_id_status=s.id_status_fatura
+    WHERE ca.fk_id_usuario=p_id_usuario AND s.status_fatura_nome IN ('aberta','atrasada');
+END$$
+
+-- =======================================================================================================================
+-- Essa function será usada dentro das triggers 'trg_valida_saldo_pagamento_fatura' e 'trg_valida_saldo_debito_conta'
+-- Ela receberá o ID da conta e o valor do débito como parâmetros e retornará 1 se o saldo for suficiente senão 0.
+
+-- DROP FUNCTION IF EXISTS fn_verifica_saldo_suficiente;
+DELIMITER $$
+CREATE FUNCTION fn_verifica_saldo_suficiente(p_id_conta INT, p_valor_debito DECIMAL(10,2))
+RETURNS BOOLEAN
+READS SQL DATA
+BEGIN
+    DECLARE v_saldo_atual DECIMAL(10,2);
+
+    -- Pega o saldo atual da conta informada
+    SELECT conta_saldo_atual INTO v_saldo_atual 
+    FROM conta WHERE id_conta = p_id_conta;
+
+    -- Retorna TRUE (1) se o saldo for suficiente, FALSE (0) caso contrário
+    IF v_saldo_atual >= p_valor_debito THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END$$
+
+DELIMITER ;</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Event</h3>
+            <p>
+                EVENTS. <br>
+                <code>
+                    <pre>
+-- EVENTS
+SET GLOBAL event_scheduler = ON;
+
+DELIMITER $$
+-- Verificar status da fatura diariamente por data
+CREATE EVENT evt_marcar_faturas_atrasadas
+ON SCHEDULE EVERY 1 DAY
+STARTS TIMESTAMP(CURRENT_DATE, '00:01:00') -- Roda todo dia, 1 minuto após a meia-noite
+COMMENT 'Atualiza diariamente o status de faturas abertas e vencidas para "atrasada".'
+DO
+BEGIN
+  UPDATE fatura
+  SET fk_id_status = (
+      SELECT id_status_fatura FROM status_fatura WHERE status_fatura_nome='atrasada'
+  )
+  WHERE fatura_data_fim < CURDATE()
+    AND fk_id_status = (SELECT id_status_fatura FROM status_fatura WHERE status_fatura_nome='aberta');
+END$$
+DELIMITER ;</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Dados</h3>
+            <p>
+                Inserindo os dados no banco de dados. <br>
+                <code>
+                    <pre>
+-- =======================================================
+-- SCRIPT DE INSERÇÃO DE DADOS BÁSICOS
+-- =======================================================
+-- Desativa a checagem de chaves estrangeiras para permitir a inserção em qualquer ordem, se necessário.
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Limpa as tabelas antes de inserir novos dados para evitar duplicatas ao re-executar o script.
+TRUNCATE TABLE transacao;
+TRUNCATE TABLE operacao;
+TRUNCATE TABLE pagamento_fatura;
+TRUNCATE TABLE fatura;
+TRUNCATE TABLE orcamento;
+TRUNCATE TABLE conta;
+TRUNCATE TABLE cartao;
+TRUNCATE TABLE categoria;
+TRUNCATE TABLE status_fatura;
+TRUNCATE TABLE usuario;
+
+-- ================================
+-- 1. DADOS BÁSICOS (TABELAS INDEPENDENTES)
+-- ================================
+
+-- Inserindo os 3 usuários
+INSERT INTO usuario (id_usuario, usuario_nome, usuario_email, usuario_senha, usuario_data_cadastro) VALUES
+(1, 'Beatriz Oliveira', 'beatriz@email.com', 'senha_hash_123', '2025-01-15'),
+(2, 'Carlos Pereira', 'carlos@email.com', 'senha_hash_456', '2025-02-20'),
+(3, 'Edmar Souza', 'edmar@email.com', 'senha_hash_789', '2025-03-10');
+<span class="image-link" data-modal="modal3">IMAGE</span>
+
+-- Inserindo os status de fatura (o ENUM garante a ordem)
+INSERT INTO status_fatura (id_status_fatura, status_fatura_nome) VALUES
+(1, 'aberta'),
+(2, 'fechada'),
+(3, 'atrasada');
+
+-- Inserindo as categorias e subcategorias
+INSERT INTO categoria (id_categoria, categoria_nome, fk_id_categoria) VALUES
+(1, 'Alimentação', NULL),
+(2, 'Restaurante', 1),
+(3, 'Supermercado', 1),
+(4, 'Moradia', NULL),
+(5, 'Transporte', NULL),
+(6, 'Lazer', NULL),
+(7, 'Saúde', NULL),
+(8, 'Salário', NULL); -- Categoria de receita
+
+-- ================================
+-- 2. DADOS DOS USUÁRIOS (CONTAS E CARTÕES)
+-- ================================
+
+-- Inserindo 2 contas para cada usuário
+INSERT INTO conta (id_conta, fk_id_usuario, conta_banco, conta_numero, conta_tipo, conta_saldo_atual) VALUES
+-- Contas de Beatriz
+(1, 1, 'Nubank', '1111-1', 'corrente', 2500.00),
+(2, 1, 'Itaú', '2222-2', 'poupanca', 15000.00),
+-- Contas de Carlos
+(3, 2, 'Nubank', '3333-3', 'corrente', 800.00),
+(4, 2, 'Bradesco', '4444-4', 'salario', 1200.00),
+-- Contas de Edemar
+(5, 3, 'SICOOB', '5555-5', 'corrente', 4000.00),
+(6, 3, 'Nubank', '6666-6', 'corrente', 350.00);
+
+-- Inserindo 2 cartões para cada usuário
+INSERT INTO cartao (id_cartao, fk_id_usuario, cartao_numero, cartao_validade, cartao_limite_credito) VALUES
+-- Cartões de Beatriz
+(1, 1, 'final 4010', '2028-12-31', 10000.00),
+(2, 1, 'final 5020', '2027-10-31', 12000.00),
+-- Cartões de Carlos
+(3, 2, 'final 6030', '2029-01-31', 6000.00),
+(4, 2, 'final 7040', '2026-08-31', 7500.00),
+-- Cartões de Edemar
+(5, 3, 'final 8050', '2028-05-31', 5500.00),
+(6, 3, 'final 9060', '2029-04-30', 8000.00);
+
+-- ================================
+-- 3. PLANEJAMENTO (ORÇAMENTOS)
+-- ================================
+-- Orçamentos para Setembro/2025
+INSERT INTO orcamento (fk_id_usuario, fk_id_categoria, orcamento_valor_planejado, orcamento_periodo_inicio, orcamento_periodo_fim) VALUES
+-- Beatriz
+(1, 1, 1500.00, '2025-09-01', '2025-09-30'), -- Alimentação
+(1, 4, 2000.00, '2025-09-01', '2025-09-30'), -- Moradia
+(1, 6, 800.00, '2025-09-01', '2025-09-30'),  -- Lazer
+-- Carlos
+(2, 1, 1200.00, '2025-09-01', '2025-09-30'), -- Alimentação
+(2, 5, 300.00, '2025-09-01', '2025-09-30'),  -- Transporte
+-- Edemar
+(3, 1, 1300.00, '2025-09-01', '2025-09-30'), -- Alimentação
+(3, 7, 400.00, '2025-09-01', '2025-09-30');   -- Saúde
+
+-- ================================
+-- 4. FATURAS E TRANSAÇÕES
+-- ================================
+ 
+-- Criando faturas ABERTAS para Setembro/2025
+INSERT INTO fatura (id_fatura, fk_id_cartao, fk_id_status, fatura_data_inicio, fatura_data_fim) VALUES
+(1, 1, 1, '2025-09-05', '2025-10-04'), -- Fatura do cartão 1 (Beatriz)
+(2, 3, 1, '2025-09-10', '2025-10-09'); -- Fatura do cartão 3 (Carlos)
+ 
+-- SIMULAÇÃO DE TRANSAÇÕES
+-- As inserções abaixo irão disparar os triggers que você criou.
+ 
+-- A) Recebimento de salários (conta_entrada)
+INSERT INTO operacao (id_operacao, operacao_nome, fk_id_conta) VALUES 
+(1, 'conta_entrada', 1), -- Beatriz recebe na conta 1
+(2, 'conta_entrada', 4), -- Carlos recebe na conta 4
+(3, 'conta_entrada', 5); -- Edemar recebe na conta 5
+ 
+INSERT INTO transacao (fk_id_operacao, fk_id_categoria, transacao_valor, transacao_data, transacao_descricao) VALUES
+(1, 8, 8000.00, '2025-09-05', 'Salário Mensal'), -- Beatriz
+(2, 8, 6000.00, '2025-09-05', 'Salário Mensal'), -- Carlos
+(3, 8, 6000.00, '2025-09-05', 'Salário Mensal'); -- Edemar
+ 
+-- B) Compras no Débito (conta_saida)
+INSERT INTO operacao (id_operacao, operacao_nome, fk_id_conta) VALUES
+(4, 'conta_saida', 3), -- Carlos paga algo da conta 3
+(5, 'conta_saida', 5); -- Edemar paga algo da conta 5
+ 
+INSERT INTO transacao (fk_id_operacao, fk_id_categoria, transacao_valor, transacao_data, transacao_descricao) VALUES
+(4, 3, 450.70, '2025-09-08', 'Compras do mês - Supermercado'), -- Carlos
+(5, 5, 55.00, '2025-09-10', 'Passagem de ônibus');             -- Edemar
+ 
+-- C) Compras no Cartão de Crédito (fatura_saida)
+INSERT INTO operacao (id_operacao, operacao_nome, fk_id_fatura) VALUES
+(6, 'fatura_saida', 1), -- Compra na fatura 1 (Beatriz)
+(7, 'fatura_saida', 1), -- Outra compra na fatura 1 (Beatriz)
+(8, 'fatura_saida', 2); -- Compra na fatura 2 (Carlos)
+ 
+INSERT INTO transacao (fk_id_operacao, fk_id_categoria, transacao_valor, transacao_data, transacao_descricao) VALUES
+(6, 2, 185.50, '2025-09-12', 'Jantar no restaurante italiano'), -- Beatriz
+(7, 4, 89.90, '2025-09-15', 'Lâmpadas novas - Loja de construção'), -- Beatriz
+(8, 6, 75.00, '2025-09-18', 'Ingressos para o cinema');          -- Carlos
+ 
+-- ================================
+-- 5. SIMULAÇÃO DE PAGAMENTO DE FATURA
+-- ================================
+ 
+-- Para simular um pagamento, vamos criar uma fatura antiga e "fechada" de Beatriz
+INSERT INTO fatura (id_fatura, fk_id_cartao, fk_id_status, fatura_data_inicio, fatura_data_fim, fatura_valor_total) VALUES
+(3, 2, 1, '2025-08-05', '2025-09-04', 1250.00); -- Fatura de Agosto do cartão 2 (Beatriz) que está "aberta"
+ 
+-- Agora, Beatriz paga essa fatura usando sua conta principal
+INSERT INTO pagamento_fatura (fk_id_conta, fk_id_fatura, pagamento_fatura_data) VALUES
+(1, 3, '2025-09-10');
+-- A inserção acima irá disparar os triggers:
+-- 1. `trg_pagamento_fatura_conta`: Deduz R$1250,00 do saldo da conta 1.
+-- 2. `trg_pagamento_fatura_status`: Altera o status da fatura 3 para "fechada".
+ 
+SET FOREIGN_KEY_CHECKS = 1;</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Teste</h3>
+            <p>
+                Testes de error. <br>
+                <code>
+                    <pre>
+-- ---------------
+-- TESTE DE ERROS
+-- ---------------
+ 
+-- Passo 1: Criar uma fatura de teste para o usuário 3 (Edemar), cartão 5.
+INSERT INTO fatura (fatura_data_inicio, fatura_data_fim, fatura_valor_total, fk_id_cartao, fk_id_status)
+VALUES ('2025-09-01', '2025-09-30', 1000.00, 5, 1); -- fatura de R$1000, status 'aberta'
+ 
+SET @id_fatura_cara = LAST_INSERT_ID();
+ 
+-- Passo 2: Tentar pagar esta fatura usando a conta 6 (saldo de R$350.00)
+-- Esta linha DEVE FALHAR por causa da trigger 'trg_valida_saldo_pagamento_fatura'
+INSERT INTO pagamento_fatura (pagamento_fatura_data, fk_id_conta, fk_id_fatura)
+VALUES (CURDATE(), 6, @id_fatura_cara);
+ 
+-- **************
+ 
+-- Passo 1: Criar uma operação válida para podermos tentar a inserção na transação.
+-- Vamos simular uma entrada na conta de ID 1.
+INSERT INTO operacao (operacao_nome, fk_id_conta) VALUES ('conta_entrada', 1);
+SET @id_op_teste = LAST_INSERT_ID();
+ 
+-- Passo 2: Tentar inserir a transação com valor negativo.
+-- Esta linha DEVE FALHAR por causa da CHECK constraint 'chk_transacao_valor_positivo'.
+INSERT INTO transacao (
+    transacao_valor, 
+    transacao_data, 
+    transacao_descricao, 
+    fk_id_categoria, 
+    fk_id_operacao
+) 
+VALUES (
+    -150.75, -- << O valor inválido
+    CURDATE(), 
+    'Teste de inserção com valor negativo', 
+    8, -- Categoria 'Salário'
+    @id_op_teste
+);</pre>
+                </code> 
+            </p>
+        </section>
+
+        <section>
+            <h3>Apresentação</h3>
+            <p>
+                Observações. <br>
+                <code>
+                    <pre>
+Tópico 1: A Primeira Camada de Defesa: CONSTRAINTS (Regras Estruturais)
+ 
+Objetivo: A própria estrutura das tabelas impede a entrada de dados inválidos, sem precisar de lógica complexa.
+Pontos a destacar:
+CHECK para Valores Válidos: A regra mais fundamental.
+Exemplo 1: chk_transacao_valor_positivo na tabela transacao. Uma transação NUNCA pode ter um valor negativo. O sinal (débito/crédito) é definido pela operacao.
+Exemplo 2: chk_limite_credito_positivo na tabela cartao. Um limite de crédito não pode ser negativo.
+CHECK para Coerência Lógica:
+Exemplo: chk_operacao_target na tabela operacao. Forçar uma operação a ter OU um fk_id_conta OU um fk_id_fatura, mas nunca ambos e nunca nenhum. Impede a criação de "transações órfãs".
+UNIQUE para Evitar Duplicidade:
+Exemplo: usuario_email na tabela usuario. Não podemos ter dois usuários com o mesmo e-mail.
+ 
+Tópico 2: A Segunda Camada de Defesa: TRIGGERS (Regras de Negócio Inteligentes)
+ 
+Objetivo: Implementar regras que dependem de outros dados no banco, algo que as CONSTRAINTS não conseguem fazer sozinhas.
+Pontos a destacar:
+Conceito de BEFORE vs. AFTER:
+BEFORE INSERT: Usado para validar e potencialmente cancelar uma operação.
+AFTER INSERT: Usado para atualizar outros dados em consequência de uma nova inserção.
+Exemplo de Validação (BEFORE):
+trg_check_limite_cartao: A regra de negócio "o total de gastos na fatura não pode ultrapassar o limite do cartão". A trigger precisa consultar o limite na tabela cartao e o total na tabela fatura antes de permitir a nova transacao.
+trg_valida_saldo_debito_conta: A regra "o usuário não pode gastar mais do que tem na conta".
+Exemplo de Atualização (AFTER):
+trg_transacao_update: A regra "sempre que uma transação for inserida, o saldo da conta ou o valor total da fatura deve ser atualizado automaticamente". Isso garante que os dados estejam sempre consistentes.
+ 
+Tópico 3: Reutilização e Organização da Lógica (Functions e Procedures)
+ 
+Objetivo: Boas práticas de programação dentro do banco de dados para não repetir código.
+Pontos a destacar:
+FUNCTION para Centralizar uma Regra:
+Exemplo: fn_verifica_saldo_suficiente. Lógica para "verificar se há saldo" é necessária em mais de um lugar (ao fazer um débito e ao pagar uma fatura). A função evita duplicar essa lógica em duas triggers diferentes, seguindo o princípio "Don't Repeat Yourself" (DRY).
+STORED PROCEDURE para Encapsular uma Ação:
+Exemplo: sp_fechar_fatura. "Fechar uma fatura" é uma ação de negócio. A procedure transforma essa ação complexa (verificar status, atualizar status) em um comando simples e seguro: CALL sp_fechar_fatura(123);.
+ 
+Tópico 4: Automação e Simplificação com EVENTS e VIEWS
+ 
+Objetivo: Recursos que facilitam a manutenção do banco e o consumo dos dados pela aplicação.
+Pontos a destacar:
+EVENT para Tarefas Agendadas:
+Exemplo: evt_marcar_faturas_atrasadas. Banco de dados podem funcionar como um "robô" que, toda noite, verifica as faturas que venceram e atualiza o status para "atrasada", sem nenhuma intervenção humana.
+VIEW para Simplificar Consultas:
+Exemplo: vw_extrato_conta. Fazer JOIN complexo dentro da view e chamar apenas um SELECT * FROM vw_extrato_conta para ter um extrato limpo e pronto, sem precisar reescrever a lógica da consulta toda vez.</pre>
+                </code> 
+            </p>
+        </section>
+        
+        <section>
+            <hr>
+            <h2>Material Adicional</h2>
+            <ul>
+                <li>SQL: <a href="assets/arquivos/Sistema-de-Controle-Financeiro-Pessoal-SQL.sql" target="_blank">Sistema de Controle Financeiro Pessoal</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- Modal 1 -->
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img src="assets/images/modelo-conceitual.png" title="Modelo Conceitual" width="100%" />
+        </div>
+    </div>
+
+    <!-- Modal 2 -->
+    <div id="modal2" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img src="assets/images/modelo-logico.png" title="Modelo Lógico" width="100%" />
+        </div>
+    </div>
+
+    <!-- Modal 3 -->
+    <div id="modal3" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="assets/images/projeto/usuario.png" title="Usuario" width="100%" />
+        </div>
+    </div>
+                        
+    <!-- FOOTER: DEBUG INFO + COPYRIGHTS + SCRIPTS -->
+    <footer>
+        <div class="environment">
+            <a href="index.html">Início</a> 
+            <a href="projeto.html">Projeto</a> 
+            <a href="dicionario-de-dados.html">Dicionário de Dados</a> 
+            <a href="participantes.html">Participantes</a>
+        </div>
+        <div class="copyrights">
+            <p>&copy; 2025 Sistema de Controle Financeiro Pessoal</p>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="assets/js/scripts.js"></script>
+
+</body>
+</html>
