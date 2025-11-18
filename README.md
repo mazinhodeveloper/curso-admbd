@@ -30,4 +30,4 @@ https://www.sp.senac.br/cursos-livres/curso-de-administrador-de-banco-de-dados
 
 
 ## GitHub / Curso NodeJS 
-https://github.com/mazinhodeveloper/curso-admbd  
+https://github.com/mazinhodeveloper/curso-administrador-banco-dados 
